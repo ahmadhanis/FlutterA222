@@ -7,6 +7,7 @@ environment:
   sdk: '>=2.19.6 <3.0.0'
 
 dependencies:
+  audioplayers: ^4.0.1
   flutter:
     sdk: flutter
 
@@ -20,3 +21,4 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/sounds/
