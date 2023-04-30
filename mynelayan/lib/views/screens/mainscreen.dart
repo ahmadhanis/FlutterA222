@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:mynelayan/views/screens/profiletabscreen.dart';
+import 'package:mynelayan/views/screens/sellertabscreen.dart';
 
 import 'buyertabscreen.dart';
 import 'newstabscreen.dart';
-import 'profiletabscreen.dart';
 
-// for fisherman screen
+//for buyer screen
 
-class SellerTabScreen extends StatefulWidget {
-  const SellerTabScreen({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
   @override
-  State<SellerTabScreen> createState() => _SellerTabScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class _SellerTabScreenState extends State<SellerTabScreen> {
+class _MainScreenState extends State<MainScreen> {
   late List<Widget> tabchildren;
-  int _currentIndex = 1;
-  String maintitle = "Seller";
+  int _currentIndex = 0;
+  String maintitle = "Buyer";
 
   @override
   void initState() {
     super.initState();
+    print("Buyer");
     tabchildren = const [
       BuyerTabScreen(),
       SellerTabScreen(),
@@ -30,17 +32,20 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    print("dispose");
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(maintitle)),
-      body: Center(
-        child: Text(maintitle),
-      ),
+      body: tabchildren[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
           onTap: onTabTapped,
+          type: BottomNavigationBarType.fixed,
           currentIndex: _currentIndex,
-          type : BottomNavigationBarType.fixed,
-          
           items: const [
             BottomNavigationBarItem(
                 icon: Icon(
