@@ -31,10 +31,8 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(maintitle),
-      ),
+    return Center(
+      child: Text(maintitle),
     );
   }
 }

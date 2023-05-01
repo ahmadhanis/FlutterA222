@@ -27,10 +27,8 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(maintitle),
-      ),
+    return Center(
+      child: Text(maintitle),
     );
   }
 }
