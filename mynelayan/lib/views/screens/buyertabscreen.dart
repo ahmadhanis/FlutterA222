@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mynelayan/models/user.dart';
 
 //for buyer screen
 
 class BuyerTabScreen extends StatefulWidget {
-  const BuyerTabScreen({super.key});
+  final User user;
+  const BuyerTabScreen({super.key, required this.user});
 
   @override
   State<BuyerTabScreen> createState() => _BuyerTabScreenState();
@@ -27,7 +29,7 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(maintitle),
+      child: Text(widget.user.email.toString()),
     );
   }
 }

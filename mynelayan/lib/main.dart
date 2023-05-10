@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'splashscreen.dart';
 
@@ -15,6 +16,10 @@ class MyApp extends StatelessWidget {
       title: 'MyNelayan',
       theme: ThemeData(
         primarySwatch: Colors.red,
+        textTheme: GoogleFonts.aBeeZeeTextTheme(
+          Theme.of(context)
+              .textTheme, // If this is not set, then ThemeData.light().textTheme is used.
+        ),
       ),
       home: const SplashScreen(),
     );
