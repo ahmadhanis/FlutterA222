@@ -71,34 +71,41 @@ class SplashScreenState extends State<SplashScreen> {
     bool ischeck = (prefs.getBool('checkbox')) ?? false;
     late User user;
     if (ischeck) {
-      http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/login_user.php"),
-          body: {"email": email, "password": password}).then((response) {
-        if (response.statusCode == 200) {
-          var jsondata = jsonDecode(response.body);
-          user = User.fromJson(jsondata['data']);
-          Timer(
-              const Duration(seconds: 3),
-              () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (content) => MainScreen(user: user))));
-        } else {
-          user = User(
-              id: "na",
-              name: "na",
-              email: "na",
-              phone: "na",
-              datereg: "na",
-              password: "na",
-              otp: "na");
-          Timer(
-              const Duration(seconds: 3),
-              () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (content) => MainScreen(user: user))));
-        }
-      }).timeout(const Duration(seconds: 5));
+      try {
+        http.post(
+            Uri.parse("${MyConfig().SERVER}/mynelayan/php/login_user.php"),
+            body: {"email": email, "password": password}).then((response) {
+          if (response.statusCode == 200) {
+            var jsondata = jsonDecode(response.body);
+            user = User.fromJson(jsondata['data']);
+            Timer(
+                const Duration(seconds: 3),
+                () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (content) => MainScreen(user: user))));
+          } else {
+            user = User(
+                id: "na",
+                name: "na",
+                email: "na",
+                phone: "na",
+                datereg: "na",
+                password: "na",
+                otp: "na");
+            Timer(
+                const Duration(seconds: 3),
+                () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (content) => MainScreen(user: user))));
+          }
+        }).timeout(const Duration(seconds: 5), onTimeout: () {
+          // Time has run out, do what you wanted to do.
+        });
+      } on TimeoutException catch (_) {
+        print("Time out");
+      }
     } else {
       user = User(
           id: "na",

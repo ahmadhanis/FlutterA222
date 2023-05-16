@@ -10,7 +10,7 @@ import 'newstabscreen.dart';
 
 class MainScreen extends StatefulWidget {
   final User user;
-  
+
   const MainScreen({super.key, required this.user});
 
   @override
@@ -27,11 +27,13 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     print(widget.user.name);
     print("Mainscreen");
-    tabchildren =  [
-      BuyerTabScreen(user: widget.user,),
-      const SellerTabScreen(),
-      const ProfileTabScreen(),
-      const NewsTabScreen()
+    tabchildren = [
+      BuyerTabScreen(
+        user: widget.user,
+      ),
+      SellerTabScreen(user: widget.user),
+      ProfileTabScreen(user: widget.user),
+      NewsTabScreen(user: widget.user)
     ];
   }
 
@@ -44,7 +46,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(maintitle),),
+    
       body: tabchildren[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
           onTap: onTabTapped,

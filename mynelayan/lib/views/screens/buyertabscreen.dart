@@ -28,8 +28,10 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(widget.user.email.toString()),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(maintitle),
+      ),
     );
   }
 }

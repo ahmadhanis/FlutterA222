@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
           //   "assets/images/login.svg",
           //   height: screenHeight * 0.5,
           // ),
-          Container(
+          SizedBox(
               height: screenHeight * 0.40,
               width: screenWidth,
               child: Image.asset(
@@ -108,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             onChanged: (bool? value) {
                               saveremovepref(value!);
                               setState(() {
-                                _isChecked = value!;
+                                _isChecked = value;
                               });
                             },
                           ),
@@ -182,28 +183,38 @@ class _LoginScreenState extends State<LoginScreen> {
     String email = _emailEditingController.text;
     String pass = _passEditingController.text;
     print(pass);
-    http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/login_user.php"),
-        body: {
-          "email": email,
-          "password": pass,
-        }).then((response) {
-      print(response.body);
-      if (response.statusCode == 200) {
-        var jsondata = jsonDecode(response.body);
-        if (jsondata['status'] == 'success') {
-          User user = User.fromJson(jsondata['data']);
-          print(user.name);
-          print(user.email);
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("Login Success")));
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (content) =>  MainScreen(user: user,)));
-        } else {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("Login Failed")));
+    try {
+      http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/login_user.php"),
+          body: {
+            "email": email,
+            "password": pass,
+          }).then((response) {
+        print(response.body);
+        if (response.statusCode == 200) {
+          var jsondata = jsonDecode(response.body);
+          if (jsondata['status'] == 'success') {
+            User user = User.fromJson(jsondata['data']);
+            print(user.name);
+            print(user.email);
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text("Login Success")));
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (content) => MainScreen(
+                          user: user,
+                        )));
+          } else {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text("Login Failed")));
+          }
         }
-      }
-    });
+      }).timeout(const Duration(seconds: 5), onTimeout: () {
+        // Time has run out, do what you wanted to do.
+      });
+    } on TimeoutException catch (_) {
+      print("Time out");
+    }
   }
 
   void _forgotDialog() {}

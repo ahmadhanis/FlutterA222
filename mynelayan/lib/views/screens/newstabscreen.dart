@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mynelayan/models/user.dart';
 
 // for profile screen
 
 class NewsTabScreen extends StatefulWidget {
-  const NewsTabScreen({super.key});
+  final User user;
+
+  const NewsTabScreen({super.key, required this.user});
 
   @override
   State<NewsTabScreen> createState() => _NewsTabScreenState();
@@ -26,8 +29,11 @@ class _NewsTabScreenState extends State<NewsTabScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(maintitle),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(maintitle),
+      ),
+      body: Text(maintitle),
     );
   }
 }
