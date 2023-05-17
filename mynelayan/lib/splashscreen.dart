@@ -37,11 +37,11 @@ class SplashScreenState extends State<SplashScreen> {
                 image: DecorationImage(
                     image: AssetImage('assets/images/splash.png'),
                     fit: BoxFit.cover))),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 50, 0, 20),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(0, 50, 0, 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
                 "MYNELAYAN",
                 style: TextStyle(

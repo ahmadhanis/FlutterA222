@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:http/http.dart' as http;
+import 'package:mynelayan/myconfig.dart';
 
 class NewCatchScreen extends StatefulWidget {
   final User user;
@@ -129,7 +131,7 @@ class _NewCatchScreenState extends State<NewCatchScreen> {
                     ),
                     TextFormField(
                         textInputAction: TextInputAction.next,
-                        validator: (val) => val!.isEmpty || (val.length < 10)
+                        validator: (val) => val!.isEmpty
                             ? "Catch description must be longer than 10"
                             : null,
                         onFieldSubmitted: (v) {},
@@ -152,10 +154,9 @@ class _NewCatchScreenState extends State<NewCatchScreen> {
                           flex: 5,
                           child: TextFormField(
                               textInputAction: TextInputAction.next,
-                              validator: (val) =>
-                                  val!.isEmpty || (val.length < 3)
-                                      ? "Product price must contain value"
-                                      : null,
+                              validator: (val) => val!.isEmpty
+                                  ? "Product price must contain value"
+                                  : null,
                               onFieldSubmitted: (v) {},
                               controller: _catchpriceEditingController,
                               keyboardType: TextInputType.number,
@@ -171,10 +172,9 @@ class _NewCatchScreenState extends State<NewCatchScreen> {
                           flex: 5,
                           child: TextFormField(
                               textInputAction: TextInputAction.next,
-                              validator: (val) =>
-                                  val!.isEmpty || (val.length < 3)
-                                      ? "Quantity should be more than 0"
-                                      : null,
+                              validator: (val) => val!.isEmpty
+                                  ? "Quantity should be more than 0"
+                                  : null,
                               controller: _catchqtyEditingController,
                               keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
@@ -194,7 +194,10 @@ class _NewCatchScreenState extends State<NewCatchScreen> {
                       width: screenWidth / 1.2,
                       height: 50,
                       child: ElevatedButton(
-                          onPressed: () {}, child: const Text("Insert Catch")),
+                          onPressed: () {
+                            insertDialog();
+                          },
+                          child: const Text("Insert Catch")),
                     )
                   ],
                 ),
@@ -250,8 +253,92 @@ class _NewCatchScreenState extends State<NewCatchScreen> {
       int? sizeInBytes = _image?.lengthSync();
       double sizeInMb = sizeInBytes! / (1024 * 1024);
       print(sizeInMb);
-      
+
       setState(() {});
     }
+  }
+
+  void insertDialog() {
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Check your input")));
+      return;
+    }
+    if (_image == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Please take picture")));
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10.0))),
+          title: const Text(
+            "Insert your catch?",
+            style: TextStyle(),
+          ),
+          content: const Text("Are you sure?", style: TextStyle()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text(
+                "Yes",
+                style: TextStyle(),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                insertCatch();
+                //registerUser();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                "No",
+                style: TextStyle(),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void insertCatch() {
+    String catchname = _catchnameEditingController.text;
+    String catchdesc = _catchdescEditingController.text;
+    String catchprice = _catchpriceEditingController.text;
+    String catchqty = _catchqtyEditingController.text;
+    String base64Image = base64Encode(_image!.readAsBytesSync());
+
+    http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/insert_catch.php"),
+        body: {
+          "catchname": catchname,
+          "catchdesc": catchdesc,
+          "catchprice": catchprice,
+          "catchqty": catchqty,
+          "type": selectedType,
+          "image": base64Image
+        }).then((response) {
+      print(response.body);
+      if (response.statusCode == 200) {
+        var jsondata = jsonDecode(response.body);
+        if (jsondata['status'] == 'success') {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("Insert Success")));
+        } else {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("Insert Failed")));
+        }
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Insert Failed")));
+        Navigator.pop(context);
+      }
+    });
   }
 }
