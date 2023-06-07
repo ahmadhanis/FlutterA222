@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'color_schemes.g.dart';
 import 'splashscreen.dart';
 
 void main() {
@@ -15,7 +16,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'MyNelayan',
       theme: ThemeData(
-        primarySwatch: Colors.red,
+        useMaterial3: true,
+        colorScheme: lightColorScheme,
         textTheme: GoogleFonts.aBeeZeeTextTheme(
           Theme.of(context)
               .textTheme, // If this is not set, then ThemeData.light().textTheme is used.

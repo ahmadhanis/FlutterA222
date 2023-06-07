@@ -6,13 +6,23 @@ if (!isset($_POST)) {
 }
 
 include_once("dbconnect.php");
-$userid = $_POST['userid'];
-$sqlloadcatches = "SELECT * FROM `tbl_catches` WHERE user_id = '$userid'";
+
+if (isset($_POST['userid'])){
+	$userid = $_POST['userid'];	
+	$sqlloadcatches = "SELECT * FROM `tbl_catches` WHERE user_id = '$userid'";
+}if (isset($_POST['search'])){
+	$search = $_POST['search'];
+	$sqlloadcatches = "SELECT * FROM `tbl_catches` WHERE catch_name LIKE '%$search%'";
+}else{
+	$sqlloadcatches = "SELECT * FROM `tbl_catches`";
+}
+
+
+
 $result = $conn->query($sqlloadcatches);
 if ($result->num_rows > 0) {
     $catches["catches"] = array();
-	
-while ($row = $result->fetch_assoc()) {
+	while ($row = $result->fetch_assoc()) {
         $catchlist = array();
         $catchlist['catch_id'] = $row['catch_id'];
         $catchlist['user_id'] = $row['user_id'];

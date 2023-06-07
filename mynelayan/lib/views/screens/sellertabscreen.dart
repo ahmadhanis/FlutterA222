@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mynelayan/models/catch.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:mynelayan/myconfig.dart';
+import 'editcatchscreen.dart';
 import 'newcatchscreen.dart';
 
 // for fisherman screen
@@ -60,10 +60,10 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
           : Column(children: [
               Container(
                 height: 24,
-                color: Colors.red,
+                color: Theme.of(context).colorScheme.primary,
                 alignment: Alignment.center,
                 child: Text(
-                  "${catchList.length} Catch Found",
+                  "${catchList.length} Catches Found",
                   style: const TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ),
@@ -77,6 +77,18 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
                             child: InkWell(
                               onLongPress: () {
                                 onDeleteDialog(index);
+                              },
+                              onTap: () async {
+                                Catch singlecatch =
+                                    Catch.fromJson(catchList[index].toJson());
+                                await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (content) => EditCatchScreen(
+                                              user: widget.user,
+                                              usercatch: singlecatch,
+                                            )));
+                                loadsellerCatches();
                               },
                               child: Column(children: [
                                 CachedNetworkImage(
@@ -140,7 +152,7 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
     http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/load_catches.php"),
         body: {"userid": widget.user.id}).then((response) {
       //print(response.body);
-      //log(response.body);
+      log(response.body);
       catchList.clear();
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);
