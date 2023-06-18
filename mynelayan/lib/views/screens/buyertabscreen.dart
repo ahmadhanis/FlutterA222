@@ -8,7 +8,7 @@ import 'package:mynelayan/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:mynelayan/myconfig.dart';
 
-import 'sellerdetailscreen.dart';
+import 'buyerdetailscreen.dart';
 
 //for buyer screen
 
@@ -25,12 +25,15 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
   List<Catch> catchList = <Catch>[];
   late double screenHeight, screenWidth;
   late int axiscount = 2;
+  int numofpage = 1, curpage = 1;
+  int numberofresult = 0;
+  var color;
 
   TextEditingController searchController = TextEditingController();
   @override
   void initState() {
     super.initState();
-    loadCatches();
+    loadCatches(1);
     print("Buyer");
   }
 
@@ -70,7 +73,7 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
                 color: Theme.of(context).colorScheme.primary,
                 alignment: Alignment.center,
                 child: Text(
-                  "${catchList.length} Catches Found",
+                  "$numberofresult Catches Found",
                   style: const TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ),
@@ -89,7 +92,7 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (content) =>
-                                            SellerDetailsScreen(
+                                            BuyerDetailsScreen(
                                               user: widget.user,
                                               usercatch: usercatch,
                                             )));
@@ -121,20 +124,49 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
                             ),
                           );
                         },
-                      )))
+                      ))),
+              SizedBox(
+                height: 50,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: numofpage,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    //build the list for textbutton with scroll
+                    if ((curpage - 1) == index) {
+                      //set current page number active
+                      color = Colors.red;
+                    } else {
+                      color = Colors.black;
+                    }
+                    return TextButton(
+                        onPressed: () {
+                          curpage = index + 1;
+                          loadCatches(index + 1);
+                        },
+                        child: Text(
+                          (index + 1).toString(),
+                          style: TextStyle(color: color, fontSize: 18),
+                        ));
+                  },
+                ),
+              ),
             ]),
     );
   }
 
-  void loadCatches() {
+  void loadCatches(int pg) {
     http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/load_catches.php"),
-        body: {}).then((response) {
+        body: {"pageno": pg.toString()}).then((response) {
       //print(response.body);
       log(response.body);
       catchList.clear();
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);
         if (jsondata['status'] == "success") {
+          numofpage = int.parse(jsondata['numofpage']); //get number of pages
+          numberofresult = int.parse(jsondata['numberofresult']);
+          print(numberofresult);
           var extractdata = jsondata['data'];
           extractdata['catches'].forEach((v) {
             catchList.add(Catch.fromJson(v));

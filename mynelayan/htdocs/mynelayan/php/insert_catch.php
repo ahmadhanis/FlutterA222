@@ -18,8 +18,8 @@ $longitude = $_POST['longitude'];
 $state = $_POST['state'];
 $locality = $_POST['locality'];
 $image = $_POST['image'];
-
-$sqlinsert = "INSERT INTO `tbl_catches`(`user_id`,`catch_name`, `catch_desc`, `catch_type`, `catch_price`, `catch_qty`, `catch_lat`, `catch_long`, `catch_state`, `catch_locality`) VALUES ('$userid','$catch_name','$catch_desc','$catch_type','$catch_price','$catch_qty','$latitude','$longitude','$state','$locality')";
+$status = "New";
+$sqlinsert = "INSERT INTO `tbl_catches`(`user_id`,`catch_name`, `catch_desc`, `catch_type`, `catch_price`, `catch_qty`, `catch_lat`, `catch_long`, `catch_state`, `catch_locality`, `catch_status`) VALUES ('$userid','$catch_name','$catch_desc','$catch_type','$catch_price','$catch_qty','$latitude','$longitude','$state','$locality','New')";
 
 if ($conn->query($sqlinsert) === TRUE) {
 	$filename = mysqli_insert_id($conn);
