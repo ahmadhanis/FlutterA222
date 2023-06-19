@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mynelayan/models/catch.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:mynelayan/myconfig.dart';
+import 'package:http/http.dart' as http;
 
 class BuyerDetailsScreen extends StatefulWidget {
   final Catch usercatch;
@@ -16,6 +19,19 @@ class BuyerDetailsScreen extends StatefulWidget {
 }
 
 class _BuyerDetailsScreenState extends State<BuyerDetailsScreen> {
+  int qty = 0;
+  int userqty = 1;
+  double totalprice = 0.0;
+  double singleprice = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    qty = int.parse(widget.usercatch.catchQty.toString());
+    totalprice = double.parse(widget.usercatch.catchPrice.toString());
+    singleprice = double.parse(widget.usercatch.catchPrice.toString());
+  }
+
   final df = DateFormat('dd-MM-yyyy hh:mm a');
 
   late double screenHeight, screenWidth, cardwitdh;
@@ -145,8 +161,123 @@ class _BuyerDetailsScreenState extends State<BuyerDetailsScreen> {
               ],
             ),
           ),
-        )
+        ),
+        Container(
+          padding: const EdgeInsets.all(8),
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+            IconButton(
+                onPressed: () {
+                  if (userqty <= 1) {
+                    userqty = 1;
+                    totalprice = singleprice * userqty;
+                  } else {
+                    userqty = userqty - 1;
+                    totalprice = singleprice * userqty;
+                  }
+                  setState(() {});
+                },
+                icon: const Icon(Icons.remove)),
+            Text(
+              userqty.toString(),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            IconButton(
+                onPressed: () {
+                  if (userqty >= qty) {
+                    userqty = qty;
+                    totalprice = singleprice * userqty;
+                  } else {
+                    userqty = userqty + 1;
+                    totalprice = singleprice * userqty;
+                  }
+                  setState(() {});
+                },
+                icon: const Icon(Icons.add)),
+          ]),
+        ),
+        Text(
+          "RM ${totalprice.toStringAsFixed(2)}",
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        ElevatedButton(
+            onPressed: () {
+              addtocartdialog();
+            },
+            child: const Text("Add to Cart"))
       ]),
     );
+  }
+
+  void addtocartdialog() {
+    if (widget.user.id.toString() == widget.usercatch.userId.toString()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("User cannot add own item")));
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10.0))),
+          title: const Text(
+            "Add to cart?",
+            style: TextStyle(),
+          ),
+          content: const Text("Are you sure?", style: TextStyle()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text(
+                "Yes",
+                style: TextStyle(),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                addtocart();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                "No",
+                style: TextStyle(),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+//`cart_id`, `catch_id`, `cart_qty`, `cart_price`, `user_id`, `buyer_id`, `cart_date`
+  void addtocart() {
+    http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/addtocart.php"),
+        body: {
+          "catch_id": widget.usercatch.catchId.toString(),
+          "cart_qty": userqty.toString(),
+          "cart_price": totalprice.toString(),
+          "userid": widget.user.id,
+          "sellerid": widget.usercatch.userId
+        }).then((response) {
+      print(response.body);
+      if (response.statusCode == 200) {
+        var jsondata = jsonDecode(response.body);
+        if (jsondata['status'] == 'success') {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("Success")));
+        } else {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("Failed")));
+        }
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Failed")));
+        Navigator.pop(context);
+      }
+    });
   }
 }

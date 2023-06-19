@@ -8,6 +8,7 @@ import 'package:mynelayan/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:mynelayan/myconfig.dart';
 
+import 'buyercartscreen.dart';
 import 'buyerdetailscreen.dart';
 
 //for buyer screen
@@ -28,6 +29,7 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
   int numofpage = 1, curpage = 1;
   int numberofresult = 0;
   var color;
+  int cartqty = 0;
 
   TextEditingController searchController = TextEditingController();
   @override
@@ -60,7 +62,49 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
               onPressed: () {
                 showsearchDialog();
               },
-              icon: const Icon(Icons.search))
+              icon: const Icon(Icons.search)),
+          TextButton.icon(
+            icon: const Icon(
+              Icons.shopping_cart,
+            ), // Your icon here
+            label: Text(cartqty.toString()), // Your text here
+            onPressed: () {
+              if (cartqty > 0) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (content) => BuyerCartScreen(
+                              user: widget.user,
+                            )));
+              }else{
+                 ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("No item in cart")));
+              }
+            },
+          )
+          // Stack(
+          //   alignment: Alignment.topRight,
+          //   children: [
+          //     IconButton(
+          //         onPressed: () {},
+          //         icon: const Icon(
+          //           Icons.shopping_cart,
+          //         )),
+          //     Positioned(
+          //         right: 30,
+          //         bottom: 25,
+          //         child: Text(
+          //           cartqty.toString(),
+          //           style: const TextStyle(color: Colors.red, fontSize: 18),
+          //         )),
+          //   ],
+          // )
+          // IconButton(
+          //     onPressed: () {},
+          //     icon: const Icon(
+          //       Icons.shopping_cart,
+          //     )),
+          // Text(cartqty.toString()),
         ],
       ),
       body: catchList.isEmpty
@@ -85,10 +129,10 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
                         (index) {
                           return Card(
                             child: InkWell(
-                              onTap: () {
+                              onTap: () async {
                                 Catch usercatch =
                                     Catch.fromJson(catchList[index].toJson());
-                                Navigator.push(
+                                await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (content) =>
@@ -96,6 +140,7 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
                                               user: widget.user,
                                               usercatch: usercatch,
                                             )));
+                                loadCatches(1);
                               },
                               child: Column(children: [
                                 CachedNetworkImage(
@@ -157,7 +202,10 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
 
   void loadCatches(int pg) {
     http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/load_catches.php"),
-        body: {"pageno": pg.toString()}).then((response) {
+        body: {
+          "cartuserid": widget.user.id,
+          "pageno": pg.toString()
+        }).then((response) {
       //print(response.body);
       log(response.body);
       catchList.clear();
@@ -168,6 +216,8 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
           numberofresult = int.parse(jsondata['numberofresult']);
           print(numberofresult);
           var extractdata = jsondata['data'];
+          cartqty = int.parse(jsondata['cartqty'].toString());
+          print(cartqty);
           extractdata['catches'].forEach((v) {
             catchList.add(Catch.fromJson(v));
           });
@@ -227,7 +277,10 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
 
   void searchCatch(String search) {
     http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/load_catches.php"),
-        body: {"search": search}).then((response) {
+        body: {
+          "cartuserid": widget.user.id,
+          "search": search
+        }).then((response) {
       //print(response.body);
       log(response.body);
       catchList.clear();
