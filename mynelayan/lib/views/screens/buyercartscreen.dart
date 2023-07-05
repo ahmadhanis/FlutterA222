@@ -6,6 +6,7 @@ import 'package:mynelayan/models/cart.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:mynelayan/myconfig.dart';
+import 'package:mynelayan/views/screens/billscreen.dart';
 
 class BuyerCartScreen extends StatefulWidget {
   final User user;
@@ -76,13 +77,69 @@ class _BuyerCartScreenState extends State<BuyerCartScreen> {
                                             MainAxisAlignment.center,
                                         children: [
                                           IconButton(
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                if (int.parse(cartList[index]
+                                                        .cartQty
+                                                        .toString()) <=
+                                                    1) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(const SnackBar(
+                                                          content: Text(
+                                                              "Quantity less than 1")));
+                                                  //userqty = 1;
+                                                  //totalprice = singleprice * userqty;
+                                                } else {
+                                                  int newqty = int.parse(
+                                                          cartList[index]
+                                                              .cartQty
+                                                              .toString()) -
+                                                      1;
+
+                                                  double newprice =
+                                                      double.parse(
+                                                              cartList[index]
+                                                                  .catchPrice
+                                                                  .toString()) *
+                                                          newqty;
+                                                  updateCart(
+                                                      index, newqty, newprice);
+                                                  //userqty = userqty - 1;
+                                                  //totalprice = singleprice * userqty;
+                                                }
+                                                setState(() {});
+                                              },
                                               icon: const Icon(Icons.remove)),
                                           Text(cartList[index]
-                                              .catchQty
+                                              .cartQty
                                               .toString()),
                                           IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              if (int.parse(cartList[index]
+                                                      .catchQty
+                                                      .toString()) >
+                                                  int.parse(cartList[index]
+                                                      .cartQty
+                                                      .toString())) {
+                                                int newqty = int.parse(
+                                                        cartList[index]
+                                                            .cartQty
+                                                            .toString()) +
+                                                    1;
+
+                                                double newprice = double.parse(
+                                                        cartList[index]
+                                                            .catchPrice
+                                                            .toString()) *
+                                                    newqty;
+                                                updateCart(
+                                                    index, newqty, newprice);
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(const SnackBar(
+                                                        content: Text(
+                                                            "Quantity not available")));
+                                              }
+                                            },
                                             icon: const Icon(Icons.add),
                                           )
                                         ],
@@ -94,7 +151,10 @@ class _BuyerCartScreenState extends State<BuyerCartScreen> {
                                 ),
                               ),
                               IconButton(
-                                  onPressed: () {}, icon: Icon(Icons.delete))
+                                  onPressed: () {
+                                    deleteDialog(index);
+                                  },
+                                  icon: const Icon(Icons.delete))
                             ],
                           ),
                         ));
@@ -106,8 +166,23 @@ class _BuyerCartScreenState extends State<BuyerCartScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Total Price RM " + totalprice.toStringAsFixed(2)),
-                    ElevatedButton(onPressed: () {}, child: Text("Check Out"))
+                    Text(
+                      "Total Price RM ${totalprice.toStringAsFixed(2)}",
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    ElevatedButton(
+                        onPressed: () async {
+                          await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (content) => BillScreen(
+                                        user: widget.user,
+                                        totalprice: totalprice,
+                                      )));
+                                      loadcart();
+                        },
+                        child: const Text("Check Out"))
                   ],
                 )),
           )
@@ -133,15 +208,98 @@ class _BuyerCartScreenState extends State<BuyerCartScreen> {
             // totalprice = totalprice +
             //     double.parse(extractdata["carts"]["cart_price"].toString());
           });
+          totalprice = 0.0;
 
           cartList.forEach((element) {
             totalprice =
                 totalprice + double.parse(element.cartPrice.toString());
+            //print(element.catchPrice);
           });
           //print(catchList[0].catchName);
+        } else {
+          Navigator.of(context).pop();
         }
         setState(() {});
       }
+    });
+  }
+
+  void deleteDialog(int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10.0))),
+          title: const Text(
+            "Delete this item?",
+            style: TextStyle(),
+          ),
+          content: const Text("Are you sure?", style: TextStyle()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text(
+                "Yes",
+                style: TextStyle(),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                deleteCart(index);
+                //registerUser();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                "No",
+                style: TextStyle(),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void deleteCart(int index) {
+    http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/delete_cart.php"),
+        body: {
+          "cartid": cartList[index].cartId,
+        }).then((response) {
+      print(response.body);
+      if (response.statusCode == 200) {
+        var jsondata = jsonDecode(response.body);
+        if (jsondata['status'] == 'success') {
+          loadcart();
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("Delete Success")));
+        } else {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("Delete Failed")));
+        }
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Delete Failed")));
+      }
+    });
+  }
+
+  void updateCart(int index, int newqty, double newprice) {
+    http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/update_cart.php"),
+        body: {
+          "cartid": cartList[index].cartId,
+          "newqty": newqty.toString(),
+          "newprice": newprice.toString()
+        }).then((response) {
+      print(response.body);
+      if (response.statusCode == 200) {
+        var jsondata = jsonDecode(response.body);
+        if (jsondata['status'] == 'success') {
+          loadcart();
+        } else {}
+      } else {}
     });
   }
 }

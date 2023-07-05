@@ -26,6 +26,8 @@ if ($result->num_rows > 0) {
         $cartlist['catch_type'] = $row['catch_type'];
         $cartlist['catch_desc'] = $row['catch_desc'];
         $cartlist['catch_qty'] = $row['catch_qty'];
+        $cartlist['catch_price'] = $row['catch_price'];
+        $cartlist['cart_qty'] = $row['cart_qty'];
         $cartlist['cart_price'] = $row['cart_price'];
         $cartlist['user_id'] = $row['user_id'];
         $cartlist['seller_id'] = $row['seller_id'];

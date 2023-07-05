@@ -52,6 +52,9 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(maintitle),
+        actions: [
+          IconButton(onPressed: (){}, icon: Icon(Icons.money))
+        ],
       ),
       body: catchList.isEmpty
           ? const Center(

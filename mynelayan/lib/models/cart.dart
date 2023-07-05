@@ -6,6 +6,8 @@ class Cart {
   String? catchType;
   String? catchDesc;
   String? catchQty;
+  String? catchPrice;
+  String? cartQty;
   String? cartPrice;
   String? userId;
   String? sellerId;
@@ -19,6 +21,8 @@ class Cart {
       this.catchType,
       this.catchDesc,
       this.catchQty,
+      this.catchPrice,
+      this.cartQty,
       this.cartPrice,
       this.userId,
       this.sellerId,
@@ -32,6 +36,8 @@ class Cart {
     catchType = json['catch_type'];
     catchDesc = json['catch_desc'];
     catchQty = json['catch_qty'];
+    catchPrice = json['catch_price'];
+    cartQty = json['cart_qty'];
     cartPrice = json['cart_price'];
     userId = json['user_id'];
     sellerId = json['seller_id'];
@@ -47,6 +53,8 @@ class Cart {
     data['catch_type'] = catchType;
     data['catch_desc'] = catchDesc;
     data['catch_qty'] = catchQty;
+    data['catch_price'] = catchPrice;
+    data['cart_qty'] = cartQty;
     data['cart_price'] = cartPrice;
     data['user_id'] = userId;
     data['seller_id'] = sellerId;

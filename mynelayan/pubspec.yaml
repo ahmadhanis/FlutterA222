@@ -45,6 +45,8 @@ dependencies:
   geocoding: ^2.1.0
   cached_network_image: ^3.2.3
   intl: ^0.18.1
+  webview_flutter: ^3.0.4
+  info_popup: ^3.0.4
 
 dev_dependencies:
   flutter_test:

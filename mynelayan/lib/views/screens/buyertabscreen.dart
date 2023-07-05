@@ -68,17 +68,18 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
               Icons.shopping_cart,
             ), // Your icon here
             label: Text(cartqty.toString()), // Your text here
-            onPressed: () {
+            onPressed: () async {
               if (cartqty > 0) {
-                Navigator.push(
+                await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (content) => BuyerCartScreen(
                               user: widget.user,
                             )));
-              }else{
-                 ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("No item in cart")));
+                loadCatches(1);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("No item in cart")));
               }
             },
           )
