@@ -210,6 +210,11 @@ class _BuyerDetailsScreenState extends State<BuyerDetailsScreen> {
   }
 
   void addtocartdialog() {
+    if (widget.user.id.toString() == "na") {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please register to add item to cart")));
+      return;
+    }
     if (widget.user.id.toString() == widget.usercatch.userId.toString()) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("User cannot add own item")));

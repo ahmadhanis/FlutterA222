@@ -6,6 +6,7 @@ import 'package:mynelayan/models/catch.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:mynelayan/myconfig.dart';
+import 'package:mynelayan/views/screens/orderscreen.dart';
 import 'editcatchscreen.dart';
 import 'newcatchscreen.dart';
 
@@ -26,7 +27,7 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
   late List<Widget> tabchildren;
   String maintitle = "Seller";
   List<Catch> catchList = <Catch>[];
-
+  String status = "Loading...";
   @override
   void initState() {
     super.initState();
@@ -53,12 +54,44 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
       appBar: AppBar(
         title: Text(maintitle),
         actions: [
-          IconButton(onPressed: (){}, icon: Icon(Icons.money))
+          PopupMenuButton(
+              // add icon, by default "3 dot" icon
+              // icon: Icon(Icons.book)
+              itemBuilder: (context) {
+            return [
+              const PopupMenuItem<int>(
+                value: 0,
+                child: Text("My Order"),
+              ),
+              const PopupMenuItem<int>(
+                value: 1,
+                child: Text("New"),
+              ),
+            ];
+          }, onSelected: (value) async {
+            if (value == 0) {
+              if (widget.user.id.toString() == "na") {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text("Please login/register an account")));
+                return;
+              }
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (content) => OrderScreen(
+                            user: widget.user,
+                          )));
+            } else if (value == 1) {
+              print("Settings menu is selected.");
+            } else if (value == 2) {
+              print("Logout menu is selected.");
+            }
+          }),
         ],
       ),
       body: catchList.isEmpty
-          ? const Center(
-              child: Text("No Data"),
+          ? Center(
+              child: Text(status),
             )
           : Column(children: [
               Container(
@@ -148,6 +181,7 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
     if (widget.user.id == "na") {
       setState(() {
         // titlecenter = "Unregistered User";
+        status = "Please register an account first";
       });
       return;
     }
@@ -165,6 +199,9 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
             catchList.add(Catch.fromJson(v));
           });
           print(catchList[0].catchName);
+        } else {
+          status = "Please register an account first";
+          setState(() {});
         }
         setState(() {});
       }

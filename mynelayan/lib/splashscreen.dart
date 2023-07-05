@@ -75,15 +75,33 @@ class SplashScreenState extends State<SplashScreen> {
         http.post(
             Uri.parse("${MyConfig().SERVER}/mynelayan/php/login_user.php"),
             body: {"email": email, "password": password}).then((response) {
+          print(response.body);
           if (response.statusCode == 200) {
             var jsondata = jsonDecode(response.body);
-            user = User.fromJson(jsondata['data']);
-            Timer(
-                const Duration(seconds: 3),
-                () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (content) => MainScreen(user: user))));
+            if (jsondata['status'] == "succcess") {
+              user = User.fromJson(jsondata['data']);
+              Timer(
+                  const Duration(seconds: 3),
+                  () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (content) => MainScreen(user: user))));
+            } else {
+              user = User(
+                  id: "na",
+                  name: "na",
+                  email: "na",
+                  phone: "na",
+                  datereg: "na",
+                  password: "na",
+                  otp: "na");
+              Timer(
+                  const Duration(seconds: 3),
+                  () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (content) => MainScreen(user: user))));
+            }
           } else {
             user = User(
                 id: "na",

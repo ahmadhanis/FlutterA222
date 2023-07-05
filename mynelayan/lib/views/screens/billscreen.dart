@@ -7,6 +7,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 class BillScreen extends StatefulWidget {
   final User user;
+  
   final double totalprice;
 
   const BillScreen({super.key, required this.user, required this.totalprice});
@@ -33,7 +34,7 @@ class _BillScreenState extends State<BillScreen> {
         body: Center(
           child: WebView(
             initialUrl:
-                'https://slumberjer.com/mynelayan/php/payment.php?userid=${widget.user.id}&email=${widget.user.email}&phone=${widget.user.phone}&name=${widget.user.name}&amount=${widget.totalprice}',
+                'https://slumberjer.com/mynelayan/php/payment.php?sellerid=${widget.user.id}&userid=${widget.user.id}&email=${widget.user.email}&phone=${widget.user.phone}&name=${widget.user.name}&amount=${widget.totalprice}',
             javascriptMode: JavascriptMode.unrestricted,
             onWebViewCreated: (WebViewController webViewController) {
               _controller.complete(webViewController);
