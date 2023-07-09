@@ -6,7 +6,7 @@ import 'package:mynelayan/models/catch.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:mynelayan/myconfig.dart';
-import 'package:mynelayan/views/screens/orderscreen.dart';
+import 'package:mynelayan/views/screens/sellerorderscreen.dart';
 import 'editcatchscreen.dart';
 import 'newcatchscreen.dart';
 
@@ -78,7 +78,7 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
               await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (content) => OrderScreen(
+                      builder: (content) => SellerOrderScreen(
                             user: widget.user,
                           )));
             } else if (value == 1) {

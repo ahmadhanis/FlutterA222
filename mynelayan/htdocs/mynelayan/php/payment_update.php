@@ -35,16 +35,50 @@ foreach ($data as $key => $value) {
 $signed= hash_hmac('sha256', $signing, 'S-wzNn8FTL0endIB4wgi728w');
 if ($signed === $data['x_signature']) {
     if ($paidstatus == "Success"){ //payment success
-        $sqlcart = "SELECT * FROM `tbl_carts` WHERE user_id = '$userid'";
+        $sqlcart = "SELECT * FROM `tbl_carts` WHERE user_id = '$userid' ORDER BY 'seller_id'";
         $result = $conn->query($sqlcart);
+        $seller = "";
+        $singleorder = 0;
+        $i =0;
+        $numofrows = $result->num_rows;
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
+                $seller_id = $row['seller_id'];
                 $catchid = $row['catch_id'];
                 $orderqty = $row['cart_qty'];
                 $order_paid = $row['cart_price'];
-                $sqlorder = "INSERT INTO `tbl_orders`(`order_bill`, `catch_id`, `order_qty`, `order_paid`, `buyer_id`) VALUES ('$receiptid','$catchid','$orderqty','$order_paid','$userid')";
-                $conn->query($sqlorder);
                 
+                if ($i==0){
+                    $seller = $seller_id;
+                }
+                
+                if ($seller == $seller_id){
+                    $singleorder = $singleorder + $order_paid;    
+                }else{
+                    $sqlorder ="INSERT INTO `tbl_orders`( `order_bill`, `order_paid`, `buyer_id`, `seller_id`, `order_status`) VALUES ('$receiptid','$singleorder','$userid','$seller','New')";
+                    $conn->query($sqlorder);
+                    $seller = $seller_id;
+                    $singleorder = 0;
+                }
+                
+                if ($i == ($numofrows-1)){
+                     $singleorder = $singleorder + $order_paid; 
+                    $sqlorder ="INSERT INTO `tbl_orders`( `order_bill`, `order_paid`, `buyer_id`, `seller_id`, `order_status`) VALUES ('$receiptid','$singleorder','$userid','$seller','New')";
+                    $conn->query($sqlorder);
+                }
+                $i++;
+                
+                
+                
+                
+                // if ($seller != $seller_id){
+                //      $singleorder =  $singleorder - $order_paid;
+                //      $sqlorder ="INSERT INTO `tbl_orders`( `order_bill`, `order_paid`, `buyer_id`, `seller_id`) VALUES ('$receiptid','$singleorder','$userid','$seller_id')";
+                //     $conn->query($sqlorder);
+                //     $seller = $seller_id;
+                // }
+                $sqlorderdetails = "INSERT INTO `tbl_orderdetails`(`order_bill`, `catch_id`, `orderdetail_qty`, `orderdetail_paid`, `buyer_id`, `seller_id`) VALUES ('$receiptid','$catchid','$orderqty','$order_paid','$userid','$seller_id')";
+                $conn->query($sqlorderdetails);
                 $sqlupdatecatchqty = "UPDATE `tbl_catches` SET `catch_qty`= (catch_qty - $orderqty) WHERE `catch_id` = '$catchid'";
                 $conn->query($sqlupdatecatchqty);
             }

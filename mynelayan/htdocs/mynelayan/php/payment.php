@@ -6,6 +6,7 @@ $phone = $_GET['phone'];
 $name = $_GET['name']; 
 $userid = $_GET['userid'];
 $amount = $_GET['amount']; 
+$sellerid = $_GET['sellerid'];
 
 
 $api_key = 'b47704d6-dd30-4143-a4b1-27eb88e8f906';
