@@ -180,7 +180,7 @@ class _BuyerCartScreenState extends State<BuyerCartScreen> {
                                         user: widget.user,
                                         totalprice: totalprice,
                                       )));
-                                      loadcart();
+                          loadcart();
                         },
                         child: const Text("Check Out"))
                   ],

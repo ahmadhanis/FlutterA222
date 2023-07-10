@@ -19,6 +19,8 @@ class SellerOrderScreen extends StatefulWidget {
 class _SellerOrderScreenState extends State<SellerOrderScreen> {
   String status = "Loading...";
   List<Order> orderList = <Order>[];
+  late double screenHeight, screenWidth, cardwitdh;
+
   @override
   void initState() {
     super.initState();
@@ -27,14 +29,78 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(title: const Text("Your Order")),
+      appBar: AppBar(title: const Text("Your Order/s")),
       body: Container(
         child: orderList.isEmpty
             ? Container()
             : Column(
                 children: [
-                  const Text("Your Current Order"),
+                  Container(
+                    width: screenWidth,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+                      child: Row(
+                        children: [
+                          Flexible(
+                              flex: 7,
+                              child: Row(
+                                children: [
+                                  const CircleAvatar(
+                                    backgroundImage: AssetImage(
+                                      "assets/images/profile.png",
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  Text(
+                                    "Hello ${widget.user.name}!",
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              )),
+                          Expanded(
+                            flex: 3,
+                            child: Container(
+                              child: Row(children: [
+                                IconButton(
+                                  icon: const Icon(Icons.notifications),
+                                  onPressed: () {},
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.search),
+                                  onPressed: () {},
+                                ),
+                              ]),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Your Current Order/s (${orderList.length})",
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.menu),
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                  ),
                   Expanded(
                       child: ListView.builder(
                           itemCount: orderList.length,
@@ -52,19 +118,36 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
                                             )));
                               },
                               leading: CircleAvatar(
-                                  child: Text(
-                                      orderList[index].orderId.toString())),
-                              title:
-                                  Text("Receipt:${orderList[index].orderBill}"),
-                              trailing: const Icon(Icons.more_vert),
-                              subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                        "RM ${double.parse(orderList[index].orderPaid.toString()).toStringAsFixed(2)}"),
-                                    Text(
-                                        "Status:${orderList[index].orderStatus}")
-                                  ]),
+                                  child: Text((index + 1).toString())),
+                              title: Text(
+                                  "Receipt: ${orderList[index].orderBill}"),
+                              trailing: const Icon(Icons.arrow_forward),
+                              subtitle: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            "Order ID: ${orderList[index].orderId}"),
+                                        Text(
+                                            "Status: ${orderList[index].orderStatus}")
+                                      ]),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "RM ${double.parse(orderList[index].orderPaid.toString()).toStringAsFixed(2)}",
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const Text("")
+                                    ],
+                                  )
+                                ],
+                              ),
                             );
                           })),
                 ],

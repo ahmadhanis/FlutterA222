@@ -136,8 +136,7 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
                             user: widget.user,
                           )));
             } else if (value == 1) {
-            } else if (value == 2) {
-            }
+            } else if (value == 2) {}
           }),
         ],
       ),
@@ -173,7 +172,7 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
                                             BuyerDetailsScreen(
                                               user: widget.user,
                                               usercatch: usercatch,
-                                              page:curpage,
+                                              page: curpage,
                                             )));
                                 loadCatches();
                               },
@@ -242,7 +241,7 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
           "pageno": curpage.toString()
         }).then((response) {
       //print(response.body);
-      log(response.body);
+      //log(response.body);
       catchList.clear();
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);

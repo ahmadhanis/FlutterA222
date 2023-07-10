@@ -8,7 +8,7 @@ import 'package:mynelayan/models/catch.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:mynelayan/appconfig/myconfig.dart';
 import 'package:http/http.dart' as http;
-import 'package:mynelayan/views/screens/buyer/buyermorescree.dart';
+import 'package:mynelayan/views/screens/buyer/buyermorescreen.dart';
 
 class BuyerDetailsScreen extends StatefulWidget {
   final Catch usercatch;
