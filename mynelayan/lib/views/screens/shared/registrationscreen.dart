@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mynelayan/myconfig.dart';
+import 'package:mynelayan/appconfig/myconfig.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});

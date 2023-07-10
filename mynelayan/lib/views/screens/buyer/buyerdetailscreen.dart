@@ -2,17 +2,22 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mynelayan/models/catch.dart';
 import 'package:mynelayan/models/user.dart';
-import 'package:mynelayan/myconfig.dart';
+import 'package:mynelayan/appconfig/myconfig.dart';
 import 'package:http/http.dart' as http;
+import 'package:mynelayan/views/screens/buyer/buyermorescree.dart';
 
 class BuyerDetailsScreen extends StatefulWidget {
   final Catch usercatch;
   final User user;
   const BuyerDetailsScreen(
-      {super.key, required this.usercatch, required this.user});
+      {super.key,
+      required this.usercatch,
+      required this.user,
+      required int page});
 
   @override
   State<BuyerDetailsScreen> createState() => _BuyerDetailsScreenState();
@@ -40,7 +45,21 @@ class _BuyerDetailsScreenState extends State<BuyerDetailsScreen> {
     screenHeight = MediaQuery.of(context).size.height;
     screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(title: const Text("Catch Details")),
+      appBar: AppBar(title: const Text("Catch Details"), actions: [
+        IconButton(
+          onPressed: () async {
+            await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (content) => BuyerMoreScreen(
+                          user: widget.user,
+                          usercatch: widget.usercatch,
+                        )));
+          },
+          icon: const Icon(Icons.more_horiz_outlined),
+          tooltip: "More from this seller",
+        )
+      ]),
       body: Column(children: [
         Flexible(
             flex: 4,
@@ -49,7 +68,7 @@ class _BuyerDetailsScreenState extends State<BuyerDetailsScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
               child: Card(
-                child: Container(
+                child: SizedBox(
                   width: screenWidth,
                   child: CachedNetworkImage(
                     width: screenWidth,
@@ -204,7 +223,7 @@ class _BuyerDetailsScreenState extends State<BuyerDetailsScreen> {
             onPressed: () {
               addtocartdialog();
             },
-            child: const Text("Add to Cart"))
+            child: const Text("Add to Cart")),
       ]),
     );
   }
@@ -216,8 +235,14 @@ class _BuyerDetailsScreenState extends State<BuyerDetailsScreen> {
       return;
     }
     if (widget.user.id.toString() == widget.usercatch.userId.toString()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("User cannot add own item")));
+      Fluttertoast.showToast(
+          msg: "User cannot add own catch",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0);
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //     const SnackBar(content: Text("User cannot add own item")));
       return;
     }
     showDialog(
@@ -267,20 +292,33 @@ class _BuyerDetailsScreenState extends State<BuyerDetailsScreen> {
           "userid": widget.user.id,
           "sellerid": widget.usercatch.userId
         }).then((response) {
-      print(response.body);
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);
         if (jsondata['status'] == 'success') {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("Success")));
+          Fluttertoast.showToast(
+              msg: "Success",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              fontSize: 16.0);
+          // ScaffoldMessenger.of(context)
+          //     .showSnackBar(const SnackBar(content: Text("Success")));
         } else {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("Failed")));
+          Fluttertoast.showToast(
+              msg: "Failed",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              fontSize: 16.0);
         }
         Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Failed")));
+        Fluttertoast.showToast(
+            msg: "Failed",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            fontSize: 16.0);
         Navigator.pop(context);
       }
     });

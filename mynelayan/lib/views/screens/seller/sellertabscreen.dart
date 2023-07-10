@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:mynelayan/models/catch.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:http/http.dart' as http;
-import 'package:mynelayan/myconfig.dart';
-import 'package:mynelayan/views/screens/sellerorderscreen.dart';
+import 'package:mynelayan/appconfig/myconfig.dart';
+import 'package:mynelayan/views/screens/seller/sellerorderscreen.dart';
 import 'editcatchscreen.dart';
 import 'newcatchscreen.dart';
 
@@ -32,13 +32,11 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
   void initState() {
     super.initState();
     loadsellerCatches();
-    print("Seller");
   }
 
   @override
   void dispose() {
     super.dispose();
-    print("dispose");
   }
 
   @override
@@ -82,9 +80,7 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
                             user: widget.user,
                           )));
             } else if (value == 1) {
-              print("Settings menu is selected.");
             } else if (value == 2) {
-              print("Logout menu is selected.");
             }
           }),
         ],
@@ -198,7 +194,6 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
           extractdata['catches'].forEach((v) {
             catchList.add(Catch.fromJson(v));
           });
-          print(catchList[0].catchName);
         } else {
           status = "Please register an account first";
           setState(() {});
@@ -251,7 +246,6 @@ class _SellerTabScreenState extends State<SellerTabScreen> {
           "userid": widget.user.id,
           "catchid": catchList[index].catchId
         }).then((response) {
-      print(response.body);
       //catchList.clear();
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mynelayan/views/screens/profiletabscreen.dart';
-import 'package:mynelayan/views/screens/sellertabscreen.dart';
+import 'package:mynelayan/views/screens/shared/profiletabscreen.dart';
+import 'package:mynelayan/views/screens/seller/sellertabscreen.dart';
 
-import '../../models/user.dart';
-import 'buyertabscreen.dart';
+import '../../../models/user.dart';
+import '../buyer/buyertabscreen.dart';
 import 'newstabscreen.dart';
 
 //for buyer screen
@@ -25,8 +25,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    print(widget.user.name);
-    print("Mainscreen");
     tabchildren = [
       BuyerTabScreen(
         user: widget.user,
@@ -40,7 +38,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void dispose() {
     super.dispose();
-    print("dispose");
   }
 
   @override

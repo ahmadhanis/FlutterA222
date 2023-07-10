@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:mynelayan/models/cart.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:http/http.dart' as http;
-import 'package:mynelayan/myconfig.dart';
-import 'package:mynelayan/views/screens/billscreen.dart';
+import 'package:mynelayan/appconfig/myconfig.dart';
+import 'package:mynelayan/views/screens/buyer/billscreen.dart';
 
 class BuyerCartScreen extends StatefulWidget {
   final User user;
@@ -161,7 +161,7 @@ class _BuyerCartScreenState extends State<BuyerCartScreen> {
                       })),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Container(
+            child: SizedBox(
                 height: 70,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -196,7 +196,6 @@ class _BuyerCartScreenState extends State<BuyerCartScreen> {
         body: {
           "userid": widget.user.id,
         }).then((response) {
-      print(response.body);
       // log(response.body);
       cartList.clear();
       if (response.statusCode == 200) {
@@ -210,11 +209,11 @@ class _BuyerCartScreenState extends State<BuyerCartScreen> {
           });
           totalprice = 0.0;
 
-          cartList.forEach((element) {
+          for (var element in cartList) {
             totalprice =
                 totalprice + double.parse(element.cartPrice.toString());
             //print(element.catchPrice);
-          });
+          }
           //print(catchList[0].catchName);
         } else {
           Navigator.of(context).pop();
@@ -268,7 +267,6 @@ class _BuyerCartScreenState extends State<BuyerCartScreen> {
         body: {
           "cartid": cartList[index].cartId,
         }).then((response) {
-      print(response.body);
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);
         if (jsondata['status'] == 'success') {
@@ -293,7 +291,6 @@ class _BuyerCartScreenState extends State<BuyerCartScreen> {
           "newqty": newqty.toString(),
           "newprice": newprice.toString()
         }).then((response) {
-      print(response.body);
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);
         if (jsondata['status'] == 'success') {

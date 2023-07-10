@@ -6,10 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:mynelayan/models/catch.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:http/http.dart' as http;
-import 'package:mynelayan/myconfig.dart';
+import 'package:mynelayan/appconfig/myconfig.dart';
 
 import 'buyercartscreen.dart';
 import 'buyerdetailscreen.dart';
+import 'buyerorderscreen.dart';
 
 //for buyer screen
 
@@ -28,6 +29,7 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
   late int axiscount = 2;
   int numofpage = 1, curpage = 1;
   int numberofresult = 0;
+  // ignore: prefer_typing_uninitialized_variables
   var color;
   int cartqty = 0;
 
@@ -35,14 +37,12 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
   @override
   void initState() {
     super.initState();
-    loadCatches(1);
-    print("Buyer");
+    loadCatches();
   }
 
   @override
   void dispose() {
     super.dispose();
-    print("dispose");
   }
 
   @override
@@ -66,7 +66,9 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
           TextButton.icon(
             icon: const Icon(
               Icons.shopping_cart,
-            ), // Your icon here
+            ),
+
+            // Your icon here
             label: Text(cartqty.toString()), // Your text here
             onPressed: () async {
               if (cartqty > 0) {
@@ -76,13 +78,13 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
                         builder: (content) => BuyerCartScreen(
                               user: widget.user,
                             )));
-                loadCatches(1);
+                loadCatches();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("No item in cart")));
               }
             },
-          )
+          ),
           // Stack(
           //   alignment: Alignment.topRight,
           //   children: [
@@ -106,6 +108,37 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
           //       Icons.shopping_cart,
           //     )),
           // Text(cartqty.toString()),
+          PopupMenuButton(
+              // add icon, by default "3 dot" icon
+              // icon: Icon(Icons.book)
+              itemBuilder: (context) {
+            return [
+              const PopupMenuItem<int>(
+                value: 0,
+                child: Text("My Order"),
+              ),
+              const PopupMenuItem<int>(
+                value: 1,
+                child: Text("New"),
+              ),
+            ];
+          }, onSelected: (value) async {
+            if (value == 0) {
+              if (widget.user.id.toString() == "na") {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text("Please login/register an account")));
+                return;
+              }
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (content) => BuyerOrderScreen(
+                            user: widget.user,
+                          )));
+            } else if (value == 1) {
+            } else if (value == 2) {
+            }
+          }),
         ],
       ),
       body: catchList.isEmpty
@@ -140,8 +173,9 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
                                             BuyerDetailsScreen(
                                               user: widget.user,
                                               usercatch: usercatch,
+                                              page:curpage,
                                             )));
-                                loadCatches(1);
+                                loadCatches();
                               },
                               child: Column(children: [
                                 CachedNetworkImage(
@@ -188,7 +222,7 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
                     return TextButton(
                         onPressed: () {
                           curpage = index + 1;
-                          loadCatches(index + 1);
+                          loadCatches();
                         },
                         child: Text(
                           (index + 1).toString(),
@@ -201,11 +235,11 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
     );
   }
 
-  void loadCatches(int pg) {
+  void loadCatches() {
     http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/load_catches.php"),
         body: {
           "cartuserid": widget.user.id,
-          "pageno": pg.toString()
+          "pageno": curpage.toString()
         }).then((response) {
       //print(response.body);
       log(response.body);
@@ -215,14 +249,11 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
         if (jsondata['status'] == "success") {
           numofpage = int.parse(jsondata['numofpage']); //get number of pages
           numberofresult = int.parse(jsondata['numberofresult']);
-          print(numberofresult);
           var extractdata = jsondata['data'];
           cartqty = int.parse(jsondata['cartqty'].toString());
-          print(cartqty);
           extractdata['catches'].forEach((v) {
             catchList.add(Catch.fromJson(v));
           });
-          print(catchList[0].catchName);
         }
         setState(() {});
       }
@@ -292,7 +323,6 @@ class _BuyerTabScreenState extends State<BuyerTabScreen> {
           extractdata['catches'].forEach((v) {
             catchList.add(Catch.fromJson(v));
           });
-          print(catchList[0].catchName);
         }
         setState(() {});
       }

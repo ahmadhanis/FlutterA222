@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:mynelayan/myconfig.dart';
-import 'package:mynelayan/views/screens/mainscreen.dart';
+import 'package:mynelayan/appconfig/myconfig.dart';
+import 'package:mynelayan/views/screens/shared/mainscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'models/user.dart';
+import '../../../models/user.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -75,10 +75,11 @@ class SplashScreenState extends State<SplashScreen> {
         http.post(
             Uri.parse("${MyConfig().SERVER}/mynelayan/php/login_user.php"),
             body: {"email": email, "password": password}).then((response) {
-          print(response.body);
           if (response.statusCode == 200) {
             var jsondata = jsonDecode(response.body);
-            if (jsondata['status'] == "succcess") {
+           
+            if (jsondata['status'] == "success") {
+              
               user = User.fromJson(jsondata['data']);
               Timer(
                   const Duration(seconds: 3),
@@ -122,7 +123,6 @@ class SplashScreenState extends State<SplashScreen> {
           // Time has run out, do what you wanted to do.
         });
       } on TimeoutException catch (_) {
-        print("Time out");
       }
     } else {
       user = User(

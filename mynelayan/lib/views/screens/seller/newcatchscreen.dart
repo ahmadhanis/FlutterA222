@@ -1,26 +1,24 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mynelayan/models/catch.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:http/http.dart' as http;
-import 'package:mynelayan/myconfig.dart';
+import 'package:mynelayan/appconfig/myconfig.dart';
 
-class EditCatchScreen extends StatefulWidget {
+class NewCatchScreen extends StatefulWidget {
   final User user;
-  final Catch usercatch;
 
-  const EditCatchScreen(
-      {super.key, required this.user, required this.usercatch});
+  const NewCatchScreen({super.key, required this.user});
 
   @override
-  State<EditCatchScreen> createState() => _EditCatchScreenState();
+  State<NewCatchScreen> createState() => _NewCatchScreenState();
 }
 
-class _EditCatchScreenState extends State<EditCatchScreen> {
+class _NewCatchScreenState extends State<NewCatchScreen> {
   File? _image;
   var pathAsset = "assets/images/camera.png";
   final _formKey = GlobalKey<FormState>();
@@ -49,6 +47,7 @@ class _EditCatchScreenState extends State<EditCatchScreen> {
     "Lobsters",
     "Other",
   ];
+  late Position _currentPosition;
 
   String curaddress = "";
   String curstate = "";
@@ -58,14 +57,7 @@ class _EditCatchScreenState extends State<EditCatchScreen> {
   @override
   void initState() {
     super.initState();
-    _catchnameEditingController.text = widget.usercatch.catchName.toString();
-    _catchdescEditingController.text = widget.usercatch.catchDesc.toString();
-    _catchpriceEditingController.text =
-        double.parse(widget.usercatch.catchPrice.toString()).toStringAsFixed(2);
-    _catchqtyEditingController.text = widget.usercatch.catchQty.toString();
-    _prstateEditingController.text = widget.usercatch.catchState.toString();
-    _prlocalEditingController.text = widget.usercatch.catchLocality.toString();
-    selectedType = widget.usercatch.catchType.toString();
+    _determinePosition();
   }
 
   @override
@@ -73,29 +65,35 @@ class _EditCatchScreenState extends State<EditCatchScreen> {
     screenHeight = MediaQuery.of(context).size.height;
     screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Update Catch"),
-      ),
+      appBar: AppBar(title: const Text("Insert New Catch"), actions: [
+        IconButton(
+            onPressed: () {
+              _determinePosition();
+            },
+            icon: const Icon(Icons.refresh))
+      ]),
       body: Column(children: [
         Flexible(
             flex: 4,
             // height: screenHeight / 2.5,
             // width: screenWidth,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-              child: Card(
-                child: Container(
-                  width: screenWidth,
-                  child: CachedNetworkImage(
-                    width: screenWidth,
-                    fit: BoxFit.cover,
-                    imageUrl:
-                        "${MyConfig().SERVER}/mynelayan/assets/catches/${widget.usercatch.catchId}.png",
-                    placeholder: (context, url) =>
-                        const LinearProgressIndicator(),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
-                  ),
+            child: GestureDetector(
+              onTap: () {
+                _selectFromCamera();
+              },
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                child: Card(
+                  child: Container(
+                      width: screenWidth,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: _image == null
+                              ? AssetImage(pathAsset)
+                              : FileImage(_image!) as ImageProvider,
+                          fit: BoxFit.contain,
+                        ),
+                      )),
                 ),
               ),
             )),
@@ -123,7 +121,6 @@ class _EditCatchScreenState extends State<EditCatchScreen> {
                             onChanged: (newValue) {
                               setState(() {
                                 selectedType = newValue!;
-                                print(selectedType);
                               });
                             },
                             items: catchlist.map((selectedType) {
@@ -138,7 +135,6 @@ class _EditCatchScreenState extends State<EditCatchScreen> {
                         ),
                         Expanded(
                           child: TextFormField(
-                              //enabled: false,
                               textInputAction: TextInputAction.next,
                               validator: (val) =>
                                   val!.isEmpty || (val.length < 3)
@@ -261,9 +257,9 @@ class _EditCatchScreenState extends State<EditCatchScreen> {
                       height: 50,
                       child: ElevatedButton(
                           onPressed: () {
-                            udpateDialog();
+                            insertDialog();
                           },
-                          child: const Text("Update Catch")),
+                          child: const Text("Insert Catch")),
                     )
                   ],
                 ),
@@ -275,13 +271,62 @@ class _EditCatchScreenState extends State<EditCatchScreen> {
     );
   }
 
-  void udpateDialog() {
+  Future<void> _selectFromCamera() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxHeight: 1200,
+      maxWidth: 800,
+    );
+
+    if (pickedFile != null) {
+      _image = File(pickedFile.path);
+      cropImage();
+    } else {
+    }
+  }
+
+  Future<void> cropImage() async {
+    CroppedFile? croppedFile = await ImageCropper().cropImage(
+      sourcePath: _image!.path,
+      aspectRatioPresets: [
+        // CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        // CropAspectRatioPreset.original,
+        //CropAspectRatioPreset.ratio4x3,
+        // CropAspectRatioPreset.ratio16x9
+      ],
+      uiSettings: [
+        AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.ratio3x2,
+            lockAspectRatio: true),
+        IOSUiSettings(
+          title: 'Cropper',
+        ),
+      ],
+    );
+    if (croppedFile != null) {
+      File imageFile = File(croppedFile.path);
+      _image = imageFile;
+
+      setState(() {});
+    }
+  }
+
+  void insertDialog() {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("Check your input")));
       return;
     }
-
+    if (_image == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Please take picture")));
+      return;
+    }
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -289,7 +334,7 @@ class _EditCatchScreenState extends State<EditCatchScreen> {
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(10.0))),
           title: const Text(
-            "Update your catch?",
+            "Insert your catch?",
             style: TextStyle(),
           ),
           content: const Text("Are you sure?", style: TextStyle()),
@@ -301,7 +346,7 @@ class _EditCatchScreenState extends State<EditCatchScreen> {
               ),
               onPressed: () {
                 Navigator.of(context).pop();
-                updateCatch();
+                insertCatch();
                 //registerUser();
               },
             ),
@@ -320,37 +365,87 @@ class _EditCatchScreenState extends State<EditCatchScreen> {
     );
   }
 
-  void updateCatch() {
+  void insertCatch() {
     String catchname = _catchnameEditingController.text;
     String catchdesc = _catchdescEditingController.text;
     String catchprice = _catchpriceEditingController.text;
     String catchqty = _catchqtyEditingController.text;
+    String state = _prstateEditingController.text;
+    String locality = _prlocalEditingController.text;
+    String base64Image = base64Encode(_image!.readAsBytesSync());
 
-    http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/update_catch.php"),
+    http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/insert_catch.php"),
         body: {
-          "catchid": widget.usercatch.catchId,
+          "userid": widget.user.id.toString(),
           "catchname": catchname,
           "catchdesc": catchdesc,
           "catchprice": catchprice,
           "catchqty": catchqty,
           "type": selectedType,
+          "latitude": prlat,
+          "longitude": prlong,
+          "state": state,
+          "locality": locality,
+          "image": base64Image
         }).then((response) {
-      print(response.body);
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);
         if (jsondata['status'] == 'success') {
           ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("Update Success")));
-          Navigator.pop(context);
+              .showSnackBar(const SnackBar(content: Text("Insert Success")));
         } else {
           ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("Update Failed")));
+              .showSnackBar(const SnackBar(content: Text("Insert Failed")));
         }
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Update Failed")));
+            .showSnackBar(const SnackBar(content: Text("Insert Failed")));
         Navigator.pop(context);
       }
     });
+  }
+
+  void _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error('Location permissions are permanently denied.');
+    }
+    _currentPosition = await Geolocator.getCurrentPosition();
+
+    _getAddress(_currentPosition);
+    //return await Geolocator.getCurrentPosition();
+  }
+
+  _getAddress(Position pos) async {
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(pos.latitude, pos.longitude);
+    if (placemarks.isEmpty) {
+      _prlocalEditingController.text = "Changlun";
+      _prstateEditingController.text = "Kedah";
+      prlat = "6.443455345";
+      prlong = "100.05488449";
+    } else {
+      _prlocalEditingController.text = placemarks[0].locality.toString();
+      _prstateEditingController.text =
+          placemarks[0].administrativeArea.toString();
+      prlat = _currentPosition.latitude.toString();
+      prlong = _currentPosition.longitude.toString();
+    }
+    setState(() {});
   }
 }

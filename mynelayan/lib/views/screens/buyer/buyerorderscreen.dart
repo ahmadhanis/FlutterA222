@@ -1,21 +1,20 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:mynelayan/models/order.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:http/http.dart' as http;
-import 'package:mynelayan/myconfig.dart';
+import 'package:mynelayan/appconfig/myconfig.dart';
 
-class SellerOrderScreen extends StatefulWidget {
+class BuyerOrderScreen extends StatefulWidget {
   final User user;
-  const SellerOrderScreen({super.key, required this.user});
+  const BuyerOrderScreen({super.key, required this.user});
 
   @override
-  State<SellerOrderScreen> createState() => _SellerOrderScreenState();
+  State<BuyerOrderScreen> createState() => _BuyerOrderScreenState();
 }
 
-class _SellerOrderScreenState extends State<SellerOrderScreen> {
+class _BuyerOrderScreenState extends State<BuyerOrderScreen> {
   String status = "Loading...";
   List<Order> orderList = <Order>[];
   @override
@@ -39,10 +38,10 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
                           itemCount: orderList.length,
                           itemBuilder: (context, index) {
                             return ListTile(
-                              leading: Icon(Icons.money),
+                              leading: const Icon(Icons.money),
                               title:
                                   Text(orderList[index].orderBill.toString()),
-                              trailing: Icon(Icons.more_vert),
+                              trailing: const Icon(Icons.more_vert),
                               
                               subtitle: Text(
                                   "RM ${double.parse(orderList[index].orderPaid.toString()).toStringAsFixed(2)}"),
@@ -62,7 +61,6 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
     http.post(
         Uri.parse("${MyConfig().SERVER}/mynelayan/php/load_sellerorder.php"),
         body: {"sellerid": widget.user.id}).then((response) {
-      print(response.body);
       log(response.body);
       //orderList.clear();
       if (response.statusCode == 200) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'color_schemes.g.dart';
-import 'splashscreen.dart';
+import 'appconfig/color_schemes.g.dart';
+import 'views/screens/shared/splashscreen.dart';
 
 void main() {
   runApp(const MyApp());

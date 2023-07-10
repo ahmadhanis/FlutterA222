@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mynelayan/models/user.dart';
-import 'package:mynelayan/views/screens/loginscreen.dart';
-import 'package:mynelayan/views/screens/registrationscreen.dart';
+import 'package:mynelayan/views/screens/shared/loginscreen.dart';
+import 'package:mynelayan/views/screens/shared/registrationscreen.dart';
 
 // for profile screen
 
@@ -21,13 +21,11 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   @override
   void initState() {
     super.initState();
-    print("Profile");
   }
 
   @override
   void dispose() {
     super.dispose();
-    print("dispose");
   }
 
   @override

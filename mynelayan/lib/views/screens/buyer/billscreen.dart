@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:mynelayan/models/user.dart';
-import 'package:mynelayan/myconfig.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class BillScreen extends StatefulWidget {

@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:mynelayan/models/user.dart';
-import 'package:mynelayan/myconfig.dart';
-import 'package:mynelayan/views/screens/registrationscreen.dart';
+import 'package:mynelayan/appconfig/myconfig.dart';
+import 'package:mynelayan/views/screens/shared/registrationscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'mainscreen.dart';
@@ -182,20 +183,16 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     String email = _emailEditingController.text;
     String pass = _passEditingController.text;
-    print(pass);
     try {
       http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/login_user.php"),
           body: {
             "email": email,
             "password": pass,
           }).then((response) {
-        print(response.body);
         if (response.statusCode == 200) {
           var jsondata = jsonDecode(response.body);
           if (jsondata['status'] == 'success') {
             User user = User.fromJson(jsondata['data']);
-            print(user.name);
-            print(user.email);
             ScaffoldMessenger.of(context)
                 .showSnackBar(const SnackBar(content: Text("Login Success")));
             Navigator.pushReplacement(
@@ -212,9 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }).timeout(const Duration(seconds: 5), onTimeout: () {
         // Time has run out, do what you wanted to do.
       });
-    } on TimeoutException catch (_) {
-      print("Time out");
-    }
+    } on TimeoutException catch (_) {}
   }
 
   void _forgotDialog() {}
@@ -238,8 +233,14 @@ class _LoginScreenState extends State<LoginScreen> {
       await prefs.setString('email', email);
       await prefs.setString('pass', password);
       await prefs.setBool("checkbox", value);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Preferences Stored")));
+      // ScaffoldMessenger.of(context)
+      //     .showSnackBar(const SnackBar(content: Text("Preferences Stored")));
+      Fluttertoast.showToast(
+          msg: "Preferences Stored",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0);
     } else {
       //delete preference
       await prefs.setString('email', '');
@@ -250,8 +251,14 @@ class _LoginScreenState extends State<LoginScreen> {
         _passEditingController.text = '';
         _isChecked = false;
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Preferences Removed")));
+      // ScaffoldMessenger.of(context)
+      //     .showSnackBar(const SnackBar(content: Text("Preferences Removed")));
+       Fluttertoast.showToast(
+          msg: "Preferences Removed",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0);
     }
   }
 

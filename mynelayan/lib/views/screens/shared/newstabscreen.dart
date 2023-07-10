@@ -18,13 +18,11 @@ class _NewsTabScreenState extends State<NewsTabScreen> {
   @override
   void initState() {
     super.initState();
-    print("News");
   }
 
   @override
   void dispose() {
     super.dispose();
-    print("dispose");
   }
 
   @override
