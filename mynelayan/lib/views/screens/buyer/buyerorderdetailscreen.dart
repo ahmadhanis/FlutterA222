@@ -10,16 +10,16 @@ import 'package:mynelayan/models/order.dart';
 import 'package:http/http.dart' as http;
 import 'package:mynelayan/models/user.dart';
 
-class SellerOrderDetailsScreen extends StatefulWidget {
+class BuyerOrderDetailsScreen extends StatefulWidget {
   final Order order;
-  const SellerOrderDetailsScreen({super.key, required this.order});
+  const BuyerOrderDetailsScreen({super.key, required this.order});
 
   @override
-  State<SellerOrderDetailsScreen> createState() =>
-      _SellerOrderDetailsScreenState();
+  State<BuyerOrderDetailsScreen> createState() =>
+      _BuyerOrderDetailsScreenState();
 }
 
-class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
+class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
   List<OrderDetails> orderdetailsList = <OrderDetails>[];
   late double screenHeight, screenWidth;
   String selectStatus = "New";
@@ -203,7 +203,7 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
         Uri.parse(
             "${MyConfig().SERVER}/mynelayan/php/load_sellerorderdetails.php"),
         body: {
-          "sellerid": widget.order.sellerId,
+          "buyerid": widget.order.buyerId,
           "orderbill": widget.order.orderBill
         }).then((response) {
       log(response.body);
@@ -227,7 +227,7 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
   void loadbuyer() {
     http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/load_user.php"),
         body: {
-          "userid": widget.order.buyerId,
+          "userid": widget.order.sellerId,
         }).then((response) {
       log(response.body);
       if (response.statusCode == 200) {

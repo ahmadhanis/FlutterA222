@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mynelayan/models/order.dart';
 import 'package:mynelayan/models/user.dart';
 import 'package:http/http.dart' as http;
@@ -116,6 +117,7 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
                                             SellerOrderDetailsScreen(
                                               order: myorder,
                                             )));
+                                loadsellerorders();
                               },
                               leading: CircleAvatar(
                                   child: Text((index + 1).toString())),
@@ -169,14 +171,22 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);
         if (jsondata['status'] == "success") {
+          orderList.clear();
           var extractdata = jsondata['data'];
           extractdata['orders'].forEach((v) {
             orderList.add(Order.fromJson(v));
           });
           // print(orderList[0].catchName);
         } else {
-          status = "Please register an account first";
-          setState(() {});
+          Navigator.of(context).pop();
+          Fluttertoast.showToast(
+              msg: "No order available",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              fontSize: 16.0);
+          // status = "Please register an account first";
+          // setState(() {});
         }
         setState(() {});
       }

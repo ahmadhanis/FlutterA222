@@ -66,57 +66,53 @@ class _BuyerMoreScreenState extends State<BuyerMoreScreen> {
           const Divider(),
           catchList.isEmpty
               ? Container()
-              : Column(
-                  children: [
-                    Expanded(
-                        child: GridView.count(
-                            crossAxisCount: 2,
-                            children: List.generate(catchList.length, (index) {
-                              return Card(
-                                child: InkWell(
-                                  onTap: () async {
-                                    Catch usercatch = Catch.fromJson(
-                                        catchList[index].toJson());
-                                    await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (content) =>
-                                                BuyerDetailsScreen(
-                                                  user: widget.user,
-                                                  usercatch: usercatch,
-                                                  page: 1,
-                                                )));
-                                    //loadCatches();
-                                  },
-                                  child: Column(children: [
-                                    CachedNetworkImage(
-                                      width: screenWidth,
-                                      fit: BoxFit.cover,
-                                      imageUrl:
-                                          "${MyConfig().SERVER}/mynelayan/assets/catches/${catchList[index].catchId}.png",
-                                      placeholder: (context, url) =>
-                                          const LinearProgressIndicator(),
-                                      errorWidget: (context, url, error) =>
-                                          const Icon(Icons.error),
-                                    ),
-                                    Text(
-                                      catchList[index].catchName.toString(),
-                                      style: const TextStyle(fontSize: 20),
-                                    ),
-                                    Text(
-                                      "RM ${double.parse(catchList[index].catchPrice.toString()).toStringAsFixed(2)}",
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                    Text(
-                                      "${catchList[index].catchQty} available",
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  ]),
-                                ),
-                              );
-                            }))),
-                  ],
-                )
+              : Expanded(
+                  child: GridView.count(
+                      crossAxisCount: 2,
+                      children: List.generate(catchList.length, (index) {
+                        return Card(
+                          child: InkWell(
+                            onTap: () async {
+                              Catch usercatch = Catch.fromJson(
+                                  catchList[index].toJson());
+                              await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (content) =>
+                                          BuyerDetailsScreen(
+                                            user: widget.user,
+                                            usercatch: usercatch,
+                                            page: 1,
+                                          )));
+                              //loadCatches();
+                            },
+                            child: Column(children: [
+                              CachedNetworkImage(
+                                width: screenWidth,
+                                fit: BoxFit.cover,
+                                imageUrl:
+                                    "${MyConfig().SERVER}/mynelayan/assets/catches/${catchList[index].catchId}.png",
+                                placeholder: (context, url) =>
+                                    const LinearProgressIndicator(),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
+                              ),
+                              Text(
+                                catchList[index].catchName.toString(),
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              Text(
+                                "RM ${double.parse(catchList[index].catchPrice.toString()).toStringAsFixed(2)}",
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                              Text(
+                                "${catchList[index].catchQty} available",
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ]),
+                          ),
+                        );
+                      })))
         ],
       ),
     );
