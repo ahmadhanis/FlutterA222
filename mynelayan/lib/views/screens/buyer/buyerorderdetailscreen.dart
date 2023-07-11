@@ -54,7 +54,7 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
       appBar: AppBar(title: const Text("Order Details")),
       body: Column(children: [
         Flexible(
-          flex: 3,
+          flex: 2,
           //height: screenHeight / 5.5,
           child: Card(
               child: Row(
@@ -160,40 +160,40 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
                         ),
                       );
                     })),
-        Container(
-          // color: Colors.red,
-          width: screenWidth,
-          height: screenHeight * 0.1,
-          child: Card(
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text("Set Order Status"),
-                  DropdownButton(
-                    itemHeight: 60,
-                    value: selectStatus,
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectStatus = newValue.toString();
-                      });
-                    },
-                    items: statusList.map((selectStatus) {
-                      return DropdownMenuItem(
-                        value: selectStatus,
-                        child: Text(
-                          selectStatus,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  ElevatedButton(
-                      onPressed: () {
-                        submitStatus(selectStatus);
-                      },
-                      child: Text("Submit"))
-                ]),
-          ),
-        )
+        // Container(
+        //   // color: Colors.red,
+        //   width: screenWidth,
+        //   height: screenHeight * 0.1,
+        //   child: Card(
+        //     child: Row(
+        //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+        //         children: [
+        //           Text("Set Order Status"),
+        //           DropdownButton(
+        //             itemHeight: 60,
+        //             value: selectStatus,
+        //             onChanged: (newValue) {
+        //               setState(() {
+        //                 selectStatus = newValue.toString();
+        //               });
+        //             },
+        //             items: statusList.map((selectStatus) {
+        //               return DropdownMenuItem(
+        //                 value: selectStatus,
+        //                 child: Text(
+        //                   selectStatus,
+        //                 ),
+        //               );
+        //             }).toList(),
+        //           ),
+        //           ElevatedButton(
+        //               onPressed: () {
+        //                 submitStatus(selectStatus);
+        //               },
+        //               child: Text("Submit"))
+        //         ]),
+        //   ),
+        // )
       ]),
     );
   }
@@ -201,10 +201,11 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
   void loadorderdetails() {
     http.post(
         Uri.parse(
-            "${MyConfig().SERVER}/mynelayan/php/load_sellerorderdetails.php"),
+            "${MyConfig().SERVER}/mynelayan/php/load_buyerorderdetails.php"),
         body: {
           "buyerid": widget.order.buyerId,
-          "orderbill": widget.order.orderBill
+          "orderbill": widget.order.orderBill,
+          "sellerid": widget.order.sellerId
         }).then((response) {
       log(response.body);
       //orderList.clear();
@@ -227,7 +228,7 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
   void loadbuyer() {
     http.post(Uri.parse("${MyConfig().SERVER}/mynelayan/php/load_user.php"),
         body: {
-          "userid": widget.order.sellerId,
+          "userid": widget.order.buyerId,
         }).then((response) {
       log(response.body);
       if (response.statusCode == 200) {
@@ -240,26 +241,26 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
     });
   }
 
-  void submitStatus(String st) {
-    http.post(
-        Uri.parse("${MyConfig().SERVER}/mynelayan/php/set_orderstatus.php"),
-        body: {"orderid": widget.order.orderId, "status": st}).then((response) {
-      log(response.body);
-      //orderList.clear();
-      if (response.statusCode == 200) {
-        var jsondata = jsonDecode(response.body);
-        if (jsondata['status'] == "success") {
-        } else {}
-        widget.order.orderStatus = st;
-        selectStatus = st;
-        setState(() {});
-        Fluttertoast.showToast(
-            msg: "Success",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            fontSize: 16.0);
-      }
-    });
-  }
+  // void submitStatus(String st) {
+  //   http.post(
+  //       Uri.parse("${MyConfig().SERVER}/mynelayan/php/set_orderstatus.php"),
+  //       body: {"orderid": widget.order.orderId, "status": st}).then((response) {
+  //     log(response.body);
+  //     //orderList.clear();
+  //     if (response.statusCode == 200) {
+  //       var jsondata = jsonDecode(response.body);
+  //       if (jsondata['status'] == "success") {
+  //       } else {}
+  //       widget.order.orderStatus = st;
+  //       selectStatus = st;
+  //       setState(() {});
+  //       Fluttertoast.showToast(
+  //           msg: "Success",
+  //           toastLength: Toast.LENGTH_SHORT,
+  //           gravity: ToastGravity.CENTER,
+  //           timeInSecForIosWeb: 1,
+  //           fontSize: 16.0);
+  //     }
+  //   });
+  // }
 }

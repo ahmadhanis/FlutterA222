@@ -146,8 +146,8 @@ class _BuyerOrderScreenState extends State<BuyerOrderScreen> {
 
   void loadsellerorders() {
     http.post(
-        Uri.parse("${MyConfig().SERVER}/mynelayan/php/load_sellerorder.php"),
-        body: {"sellerid": widget.user.id}).then((response) {
+        Uri.parse("${MyConfig().SERVER}/mynelayan/php/load_buyerorder.php"),
+        body: {"buyerid": widget.user.id}).then((response) {
       log(response.body);
       //orderList.clear();
       if (response.statusCode == 200) {
