@@ -22,7 +22,7 @@ class BuyerOrderDetailsScreen extends StatefulWidget {
 class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
   List<OrderDetails> orderdetailsList = <OrderDetails>[];
   late double screenHeight, screenWidth;
-  String selectStatus = "New";
+  String selectStatus = "Ready";
   List<String> statusList = [
     "New",
     "Processing",
@@ -43,7 +43,7 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
     super.initState();
     loadbuyer();
     loadorderdetails();
-    selectStatus = widget.order.orderStatus.toString();
+    //selectStatus = widget.order.orderStatus.toString();
   }
 
   @override
@@ -53,9 +53,9 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Order Details")),
       body: Column(children: [
-        Flexible(
-          flex: 2,
-          //height: screenHeight / 5.5,
+        Container(
+          //flex: 3,
+          height: screenHeight / 5.5,
           child: Card(
               child: Row(
             children: [
@@ -110,7 +110,7 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
         orderdetailsList.isEmpty
             ? Container()
             : Expanded(
-                flex: 8,
+                flex: 7,
                 child: ListView.builder(
                     itemCount: orderdetailsList.length,
                     itemBuilder: (context, index) {
@@ -160,40 +160,40 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
                         ),
                       );
                     })),
-        // Container(
-        //   // color: Colors.red,
-        //   width: screenWidth,
-        //   height: screenHeight * 0.1,
-        //   child: Card(
-        //     child: Row(
-        //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        //         children: [
-        //           Text("Set Order Status"),
-        //           DropdownButton(
-        //             itemHeight: 60,
-        //             value: selectStatus,
-        //             onChanged: (newValue) {
-        //               setState(() {
-        //                 selectStatus = newValue.toString();
-        //               });
-        //             },
-        //             items: statusList.map((selectStatus) {
-        //               return DropdownMenuItem(
-        //                 value: selectStatus,
-        //                 child: Text(
-        //                   selectStatus,
-        //                 ),
-        //               );
-        //             }).toList(),
-        //           ),
-        //           ElevatedButton(
-        //               onPressed: () {
-        //                 submitStatus(selectStatus);
-        //               },
-        //               child: Text("Submit"))
-        //         ]),
-        //   ),
-        // )
+        Container(
+          // color: Colors.red,
+          width: screenWidth,
+          height: screenHeight * 0.1,
+          child: Card(
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text("Set order status as completed"),
+                  // DropdownButton(
+                  //   itemHeight: 60,
+                  //   value: selectStatus,
+                  //   onChanged: (newValue) {
+                  //     setState(() {
+                  //       selectStatus = newValue.toString();
+                  //     });
+                  //   },
+                  //   items: statusList.map((selectStatus) {
+                  //     return DropdownMenuItem(
+                  //       value: selectStatus,
+                  //       child: Text(
+                  //         selectStatus,
+                  //       ),
+                  //     );
+                  //   }).toList(),
+                  // ),
+                  ElevatedButton(
+                      onPressed: () {
+                        submitStatus("Completed");
+                      },
+                      child: Text("Submit"))
+                ]),
+          ),
+        )
       ]),
     );
   }
@@ -219,6 +219,7 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
         } else {
           // status = "Please register an account first";
           // setState(() {});
+          
         }
         setState(() {});
       }
@@ -241,26 +242,26 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
     });
   }
 
-  // void submitStatus(String st) {
-  //   http.post(
-  //       Uri.parse("${MyConfig().SERVER}/mynelayan/php/set_orderstatus.php"),
-  //       body: {"orderid": widget.order.orderId, "status": st}).then((response) {
-  //     log(response.body);
-  //     //orderList.clear();
-  //     if (response.statusCode == 200) {
-  //       var jsondata = jsonDecode(response.body);
-  //       if (jsondata['status'] == "success") {
-  //       } else {}
-  //       widget.order.orderStatus = st;
-  //       selectStatus = st;
-  //       setState(() {});
-  //       Fluttertoast.showToast(
-  //           msg: "Success",
-  //           toastLength: Toast.LENGTH_SHORT,
-  //           gravity: ToastGravity.CENTER,
-  //           timeInSecForIosWeb: 1,
-  //           fontSize: 16.0);
-  //     }
-  //   });
-  // }
+  void submitStatus(String st) {
+    http.post(
+        Uri.parse("${MyConfig().SERVER}/mynelayan/php/set_orderstatus.php"),
+        body: {"orderid": widget.order.orderId, "status": st}).then((response) {
+      log(response.body);
+      //orderList.clear();
+      if (response.statusCode == 200) {
+        var jsondata = jsonDecode(response.body);
+        if (jsondata['status'] == "success") {
+        } else {}
+        widget.order.orderStatus = st;
+        selectStatus = st;
+        setState(() {});
+        Fluttertoast.showToast(
+            msg: "Success",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            fontSize: 16.0);
+      }
+    });
+  }
 }

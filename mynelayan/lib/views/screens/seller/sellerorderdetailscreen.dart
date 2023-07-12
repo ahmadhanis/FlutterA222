@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mynelayan/appconfig/myconfig.dart';
 import 'package:mynelayan/models/catchdetails.dart';
 import 'package:mynelayan/models/order.dart';
@@ -23,12 +24,8 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
   List<OrderDetails> orderdetailsList = <OrderDetails>[];
   late double screenHeight, screenWidth;
   String selectStatus = "New";
-  List<String> statusList = [
-    "New",
-    "Processing",
-    "Ready",
-    "Completed",
-  ];
+  var pickupLatLng;
+  List<String> statusList = ["New", "Processing", "Ready", "Completed"];
   late User user = User(
       id: "na",
       name: "na",
@@ -37,6 +34,20 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
       datereg: "na",
       password: "na",
       otp: "na");
+  Set<Marker> markers = Set();
+  final Completer<GoogleMapController> _controller =
+      Completer<GoogleMapController>();
+
+  static const CameraPosition _kGooglePlex = CameraPosition(
+    target: LatLng(6.45675, 100.7554334),
+    zoom: 14.4746,
+  );
+
+  static const CameraPosition _kLake = CameraPosition(
+      bearing: 192.8334901395799,
+      target: LatLng(37.43296265331129, -122.08832357078792),
+      tilt: 59.440717697143555,
+      zoom: 19.151926040649414);
 
   @override
   void initState() {
@@ -107,6 +118,14 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
             ],
           )),
         ),
+        Container(
+          padding: const EdgeInsets.all(16),
+          child: ElevatedButton(
+              onPressed: () {
+                pickupDialog();
+              },
+              child: const Text("Select Pickup Location")),
+        ),
         orderdetailsList.isEmpty
             ? Container()
             : Expanded(
@@ -168,7 +187,7 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text("Set Order Status"),
+                  const Text("Set Order Status"),
                   DropdownButton(
                     itemHeight: 60,
                     value: selectStatus,
@@ -190,7 +209,7 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
                       onPressed: () {
                         submitStatus(selectStatus);
                       },
-                      child: Text("Submit"))
+                      child: const Text("Submit"))
                 ]),
           ),
         )
@@ -261,5 +280,63 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
             fontSize: 16.0);
       }
     });
+  }
+
+  void pickupDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Select your pickup location"),
+              content: GoogleMap(
+                mapType: MapType.normal,
+                initialCameraPosition: _kGooglePlex,
+                markers: markers.toSet(),
+                onTap: (newLatLng) {
+                  // print(newLatLng.latitude);
+                  // print(newLatLng.longitude);
+                  MarkerId markerId1 = const MarkerId("1");
+                  markers.clear();
+                  markers.add(Marker(
+                    markerId: markerId1,
+                    position: LatLng(newLatLng.latitude, newLatLng.longitude),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueRed),
+                  ));
+                  pickupLatLng = newLatLng;
+                  setState(() {});
+                },
+                myLocationEnabled: true,
+                onMapCreated: (GoogleMapController controller) {
+                  _controller.complete(controller);
+                },
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (pickupLatLng == null) {
+                      Fluttertoast.showToast(
+                          msg: "Please select pickup location from map",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          fontSize: 16.0);
+                      return;
+                    }
+                  },
+                  child: const Text("Select"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 }
