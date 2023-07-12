@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mynelayan/models/order.dart';
@@ -39,7 +38,7 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
             ? Container()
             : Column(
                 children: [
-                  Container(
+                  SizedBox(
                     width: screenWidth,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
@@ -67,18 +66,16 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
                               )),
                           Expanded(
                             flex: 3,
-                            child: Container(
-                              child: Row(children: [
-                                IconButton(
-                                  icon: const Icon(Icons.notifications),
-                                  onPressed: () {},
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.search),
-                                  onPressed: () {},
-                                ),
-                              ]),
-                            ),
+                            child: Row(children: [
+                              IconButton(
+                                icon: const Icon(Icons.notifications),
+                                onPressed: () {},
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: () {},
+                              ),
+                            ]),
                           )
                         ],
                       ),
@@ -166,7 +163,7 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
     http.post(
         Uri.parse("${MyConfig().SERVER}/mynelayan/php/load_sellerorder.php"),
         body: {"sellerid": widget.user.id}).then((response) {
-      log(response.body);
+      // log(response.body);
       //orderList.clear();
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);
@@ -176,7 +173,6 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
           extractdata['orders'].forEach((v) {
             orderList.add(Order.fromJson(v));
           });
-          // print(orderList[0].catchName);
         } else {
           Navigator.of(context).pop();
           Fluttertoast.showToast(

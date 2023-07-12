@@ -36,7 +36,7 @@ class _BuyerCartScreenState extends State<BuyerCartScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Your Cart"),
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.clear))],
+        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.clear))],
       ),
       body: Column(
         children: [

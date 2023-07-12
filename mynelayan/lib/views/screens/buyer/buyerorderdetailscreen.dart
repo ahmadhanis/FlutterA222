@@ -53,7 +53,7 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Order Details")),
       body: Column(children: [
-        Container(
+        SizedBox(
           //flex: 3,
           height: screenHeight / 5.5,
           child: Card(
@@ -160,7 +160,7 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
                         ),
                       );
                     })),
-        Container(
+        SizedBox(
           // color: Colors.red,
           width: screenWidth,
           height: screenHeight * 0.1,
@@ -168,7 +168,7 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text("Set order status as completed"),
+                  const Text("Set order status as completed"),
                   // DropdownButton(
                   //   itemHeight: 60,
                   //   value: selectStatus,
@@ -190,7 +190,7 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
                       onPressed: () {
                         submitStatus("Completed");
                       },
-                      child: Text("Submit"))
+                      child: const Text("Submit"))
                 ]),
           ),
         )
@@ -219,7 +219,6 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
         } else {
           // status = "Please register an account first";
           // setState(() {});
-          
         }
         setState(() {});
       }

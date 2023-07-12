@@ -24,6 +24,7 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
   List<OrderDetails> orderdetailsList = <OrderDetails>[];
   late double screenHeight, screenWidth;
   String selectStatus = "New";
+  // ignore: prefer_typing_uninitialized_variables
   var pickupLatLng;
   List<String> statusList = ["New", "Processing", "Ready", "Completed"];
   late User user = User(
@@ -34,20 +35,15 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
       datereg: "na",
       password: "na",
       otp: "na");
-  Set<Marker> markers = Set();
+  String picuploc = "Not selected";
+  Set<Marker> markers = {};
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(6.45675, 100.7554334),
-    zoom: 14.4746,
+  static const CameraPosition _kchanglun = CameraPosition(
+    target: LatLng(6.4301523, 100.4287586),
+    zoom: 12.4746,
   );
-
-  static const CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
 
   @override
   void initState() {
@@ -55,6 +51,13 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
     loadbuyer();
     loadorderdetails();
     selectStatus = widget.order.orderStatus.toString();
+    if (widget.order.orderLat == null) {
+      picuploc = "Not selected";
+    } else {
+      picuploc = "Selected";
+      pickupLatLng = LatLng(double.parse(widget.order.orderLat.toString()),
+          double.parse(widget.order.orderLng.toString()));
+    }
   }
 
   @override
@@ -119,13 +122,18 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
           )),
         ),
         Container(
-          padding: const EdgeInsets.all(16),
-          child: ElevatedButton(
-              onPressed: () {
-                pickupDialog();
-              },
-              child: const Text("Select Pickup Location")),
-        ),
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      pickupDialog();
+                    },
+                    child: const Text("Select Pickup Location")),
+                Text(picuploc)
+              ],
+            )),
         orderdetailsList.isEmpty
             ? Container()
             : Expanded(
@@ -179,7 +187,7 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
                         ),
                       );
                     })),
-        Container(
+        SizedBox(
           // color: Colors.red,
           width: screenWidth,
           height: screenHeight * 0.1,
@@ -248,7 +256,7 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
         body: {
           "userid": widget.order.buyerId,
         }).then((response) {
-      log(response.body);
+      // log(response.body);
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);
         if (jsondata['status'] == 'success') {
@@ -260,9 +268,26 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
   }
 
   void submitStatus(String st) {
+    if (pickupLatLng == null) {
+      Fluttertoast.showToast(
+          msg: "Please select pickup location",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0);
+      return;
+    }
+    String lat = pickupLatLng.latitude.toString();
+    String lng = pickupLatLng.longitude.toString();
+
     http.post(
         Uri.parse("${MyConfig().SERVER}/mynelayan/php/set_orderstatus.php"),
-        body: {"orderid": widget.order.orderId, "status": st}).then((response) {
+        body: {
+          "orderid": widget.order.orderId,
+          "status": st,
+          "lat": lat,
+          "lng": lng
+        }).then((response) {
       log(response.body);
       //orderList.clear();
       if (response.statusCode == 200) {
@@ -282,7 +307,7 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
     });
   }
 
-  void pickupDialog() {
+  pickupDialog() {
     showDialog(
       context: context,
       builder: (context) {
@@ -292,7 +317,7 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
               title: const Text("Select your pickup location"),
               content: GoogleMap(
                 mapType: MapType.normal,
-                initialCameraPosition: _kGooglePlex,
+                initialCameraPosition: _kchanglun,
                 markers: markers.toSet(),
                 onTap: (newLatLng) {
                   // print(newLatLng.latitude);
@@ -328,6 +353,9 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
                           timeInSecForIosWeb: 1,
                           fontSize: 16.0);
                       return;
+                    } else {
+                      Navigator.pop(context);
+                      picuploc = "Selected";
                     }
                   },
                   child: const Text("Select"),
@@ -337,6 +365,8 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
           },
         );
       },
-    );
+    ).then((val) {
+      setState(() {});
+    });
   }
 }

@@ -39,7 +39,7 @@ class _BuyerOrderScreenState extends State<BuyerOrderScreen> {
             ? Container()
             : Column(
                 children: [
-                  Container(
+                  SizedBox(
                     width: screenWidth,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
@@ -67,18 +67,16 @@ class _BuyerOrderScreenState extends State<BuyerOrderScreen> {
                               )),
                           Expanded(
                             flex: 3,
-                            child: Container(
-                              child: Row(children: [
-                                IconButton(
-                                  icon: const Icon(Icons.notifications),
-                                  onPressed: () {},
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.search),
-                                  onPressed: () {},
-                                ),
-                              ]),
-                            ),
+                            child: Row(children: [
+                              IconButton(
+                                icon: const Icon(Icons.notifications),
+                                onPressed: () {},
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: () {},
+                              ),
+                            ]),
                           )
                         ],
                       ),
@@ -100,7 +98,7 @@ class _BuyerOrderScreenState extends State<BuyerOrderScreen> {
                                             BuyerOrderDetailsScreen(
                                               order: myorder,
                                             )));
-                                 loadsellerorders();
+                                loadsellerorders();
                               },
                               leading: CircleAvatar(
                                   child: Text((index + 1).toString())),

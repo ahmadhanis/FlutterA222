@@ -7,13 +7,13 @@ if (!isset($_POST)) {
 
 include_once("dbconnect.php");
 
-if (isset($_POST['sellerid'])){
-	$sellerid = $_POST['sellerid'];	
-	$sqlcart = "SELECT * FROM `tbl_orders` WHERE seller_id = '$sellerid'";
+if (isset($_POST['buyerid'])){
+	$buyerid = $_POST['buyerid'];	
+	$sqlorder = "SELECT * FROM `tbl_orders` WHERE buyer_id = '$buyerid'";
 }
 //`order_id`, `order_bill`, `order_paid`, `buyer_id`, `seller_id`, `order_date`, `order_status`
 
-$result = $conn->query($sqlcart);
+$result = $conn->query($sqlorder);
 if ($result->num_rows > 0) {
     $oderitems["orders"] = array();
 	while ($row = $result->fetch_assoc()) {
@@ -25,8 +25,6 @@ if ($result->num_rows > 0) {
         $orderlist['seller_id'] = $row['seller_id'];
         $orderlist['order_date'] = $row['order_date'];
         $orderlist['order_status'] = $row['order_status'];
-         $orderlist['order_lat'] = $row['order_lat'];
-          $orderlist['order_lng'] = $row['order_lng'];
         array_push($oderitems["orders"] ,$orderlist);
     }
     $response = array('status' => 'success', 'data' => $oderitems);

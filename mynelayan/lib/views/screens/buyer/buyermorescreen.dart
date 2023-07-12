@@ -47,17 +47,17 @@ class _BuyerMoreScreenState extends State<BuyerMoreScreen> {
       appBar: AppBar(title: const Text("More from ")),
       body: Column(
         children: [
-          Container(
+          SizedBox(
               height: screenHeight / 8,
               width: screenWidth,
               child: Card(
-                  child: user == "na"
+                  child: user.name == "na"
                       ? const Center(child: Text("Loading..."))
                       : Center(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              "Store Owner\n" + user.name.toString(),
+                              "Store Owner\n${user.name}",
                               style: const TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
@@ -73,13 +73,12 @@ class _BuyerMoreScreenState extends State<BuyerMoreScreen> {
                         return Card(
                           child: InkWell(
                             onTap: () async {
-                              Catch usercatch = Catch.fromJson(
-                                  catchList[index].toJson());
+                              Catch usercatch =
+                                  Catch.fromJson(catchList[index].toJson());
                               await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (content) =>
-                                          BuyerDetailsScreen(
+                                      builder: (content) => BuyerDetailsScreen(
                                             user: widget.user,
                                             usercatch: usercatch,
                                             page: 1,

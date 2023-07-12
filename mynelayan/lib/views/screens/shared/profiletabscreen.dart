@@ -71,7 +71,11 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               child:
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 GestureDetector(
-                  onTap: isDisable ? null : (){_updateImageDialog();},
+                  onTap: isDisable
+                      ? null
+                      : () {
+                          _updateImageDialog();
+                        },
                   child: Container(
                     margin: const EdgeInsets.all(4),
                     width: screenWidth * 0.4,
@@ -286,7 +290,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
 
   void _updateProfileImage(image) {
     String base64Image = base64Encode(image!.readAsBytesSync());
-    
+
     http.post(
         Uri.parse("${MyConfig().SERVER}/mynelayan/php/update_profile.php"),
         body: {
@@ -294,7 +298,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
           "image": base64Image,
         }).then((response) {
       var jsondata = jsonDecode(response.body);
-      print(response.body);
       if (response.statusCode == 200 && jsondata['status'] == 'success') {
         Fluttertoast.showToast(
             msg: "Success",
@@ -381,7 +384,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
           "userid": widget.user.id,
           "newname": newname,
         }).then((response) {
-      print(response.body);
       var jsondata = jsonDecode(response.body);
       if (response.statusCode == 200 && jsondata['status'] == 'success') {
         Fluttertoast.showToast(
