@@ -1,9 +1,12 @@
+// ignore_for_file: prefer_typing_uninitialized_variables
+
 import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mynelayan/appconfig/myconfig.dart';
 import 'package:mynelayan/models/catchdetails.dart';
 import 'package:mynelayan/models/order.dart';
@@ -19,10 +22,12 @@ class BuyerOrderDetailsScreen extends StatefulWidget {
       _BuyerOrderDetailsScreenState();
 }
 
+// ignore: duplicate_ignore
 class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
   List<OrderDetails> orderdetailsList = <OrderDetails>[];
   late double screenHeight, screenWidth;
   String selectStatus = "Ready";
+  Set<Marker> markers = {};
   List<String> statusList = [
     "New",
     "Processing",
@@ -37,6 +42,9 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
       datereg: "na",
       password: "na",
       otp: "na");
+  var pickupLatLng;
+  String picuploc = "Not selected";
+  var _pickupPosition;
 
   @override
   void initState() {
@@ -44,6 +52,28 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
     loadbuyer();
     loadorderdetails();
     //selectStatus = widget.order.orderStatus.toString();
+    if (widget.order.orderLat.toString() == "") {
+      picuploc = "Not selected";
+      _pickupPosition = const CameraPosition(
+        target: LatLng(6.4301523, 100.4287586),
+        zoom: 12.4746,
+      );
+    } else {
+      picuploc = "Selected";
+      pickupLatLng = LatLng(double.parse(widget.order.orderLat.toString()),
+          double.parse(widget.order.orderLng.toString()));
+      _pickupPosition = CameraPosition(
+        target: pickupLatLng,
+        zoom: 18.4746,
+      );
+      MarkerId markerId1 = const MarkerId("1");
+      markers.clear();
+      markers.add(Marker(
+        markerId: markerId1,
+        position: pickupLatLng,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      ));
+    }
   }
 
   @override
@@ -107,6 +137,28 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
             ],
           )),
         ),
+        Container(
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      if (picuploc == "Selected") {
+                        loadMapDialog();
+                      } else {
+                        Fluttertoast.showToast(
+                            msg: "Location not available",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            fontSize: 16.0);
+                      }
+                    },
+                    child: const Text("See Pickup Location")),
+                Text(picuploc)
+              ],
+            )),
         orderdetailsList.isEmpty
             ? Container()
             : Expanded(
@@ -261,6 +313,51 @@ class _BuyerOrderDetailsScreenState extends State<BuyerOrderDetailsScreen> {
             timeInSecForIosWeb: 1,
             fontSize: 16.0);
       }
+    });
+  }
+
+  void loadMapDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Select your pickup location"),
+              content: GoogleMap(
+                mapType: MapType.normal,
+                initialCameraPosition: _pickupPosition,
+                markers: markers.toSet(),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (pickupLatLng == null) {
+                      Fluttertoast.showToast(
+                          msg: "Please select pickup location from map",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          fontSize: 16.0);
+                      return;
+                    } else {
+                      Navigator.pop(context);
+                      picuploc = "Selected";
+                    }
+                  },
+                  child: const Text("Select"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    ).then((val) {
+      setState(() {});
     });
   }
 }

@@ -157,7 +157,6 @@ class _BuyerOrderScreenState extends State<BuyerOrderScreen> {
           extractdata['orders'].forEach((v) {
             orderList.add(Order.fromJson(v));
           });
-          // print(orderList[0].catchName);
         } else {
           status = "Please register an account first";
           setState(() {});

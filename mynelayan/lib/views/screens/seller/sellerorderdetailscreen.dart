@@ -51,7 +51,7 @@ class _SellerOrderDetailsScreenState extends State<SellerOrderDetailsScreen> {
     loadbuyer();
     loadorderdetails();
     selectStatus = widget.order.orderStatus.toString();
-    if (widget.order.orderLat == null) {
+    if (widget.order.orderLat.toString() == "") {
       picuploc = "Not selected";
     } else {
       picuploc = "Selected";

@@ -25,6 +25,8 @@ if ($result->num_rows > 0) {
         $orderlist['seller_id'] = $row['seller_id'];
         $orderlist['order_date'] = $row['order_date'];
         $orderlist['order_status'] = $row['order_status'];
+         $orderlist['order_lat'] = $row['order_lat'];
+          $orderlist['order_lng'] = $row['order_lng'];
         array_push($oderitems["orders"] ,$orderlist);
     }
     $response = array('status' => 'success', 'data' => $oderitems);
