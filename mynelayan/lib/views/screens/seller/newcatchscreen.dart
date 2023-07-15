@@ -282,8 +282,7 @@ class _NewCatchScreenState extends State<NewCatchScreen> {
     if (pickedFile != null) {
       _image = File(pickedFile.path);
       cropImage();
-    } else {
-    }
+    } else {}
   }
 
   Future<void> cropImage() async {
@@ -388,6 +387,7 @@ class _NewCatchScreenState extends State<NewCatchScreen> {
           "locality": locality,
           "image": base64Image
         }).then((response) {
+      print(response.body);
       if (response.statusCode == 200) {
         var jsondata = jsonDecode(response.body);
         if (jsondata['status'] == 'success') {

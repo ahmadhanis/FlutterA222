@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -71,22 +70,18 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               child:
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 GestureDetector(
-                  onTap: isDisable
-                      ? null
-                      : () {
-                          _updateImageDialog();
-                        },
+                  onTap: isDisable ? null : _updateImageDialog,
                   child: Container(
                     margin: const EdgeInsets.all(4),
                     width: screenWidth * 0.4,
                     child: CachedNetworkImage(
                         imageUrl:
-                            "${MyConfig().SERVER}/mynelayan/assets/profileimages/${widget.user.id}.png?v=$val",
+                            "${MyConfig().SERVER}/mynelayan/assets/profile/${widget.user.id}.png?v=$val",
                         placeholder: (context, url) =>
                             const LinearProgressIndicator(),
-                        errorWidget: (context, url, error) => const Icon(
-                              Icons.image_not_supported,
-                              size: 128,
+                        errorWidget: (context, url, error) => Image.network(
+                              "${MyConfig().SERVER}/mynelayan/assets/profile/0.png",
+                              scale: 2,
                             )),
                   ),
                 ),
@@ -237,11 +232,11 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     );
   }
 
-  _galleryPicker() async {
+  Future<void> _galleryPicker() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
-      maxHeight: 800,
+      maxHeight: 1200,
       maxWidth: 800,
     );
     if (pickedFile != null) {
@@ -250,11 +245,11 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     }
   }
 
-  _cameraPicker() async {
+  Future<void> _cameraPicker() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(
       source: ImageSource.camera,
-      maxHeight: 800,
+      maxHeight: 1200,
       maxWidth: 800,
     );
     if (pickedFile != null) {
@@ -274,7 +269,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
             toolbarTitle: 'Cropper',
             toolbarColor: Colors.deepOrange,
             toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
+            initAspectRatio: CropAspectRatioPreset.square,
             lockAspectRatio: false),
         IOSUiSettings(
           title: 'Cropper',
@@ -284,20 +279,33 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     if (croppedFile != null) {
       File imageFile = File(croppedFile.path);
       _image = imageFile;
-      _updateProfileImage(_image);
+      _updateProfileImage();
+      setState(() {});
     }
   }
 
-  void _updateProfileImage(image) {
-    String base64Image = base64Encode(image!.readAsBytesSync());
-
+  Future<void> _updateProfileImage() async {
+    if (_image == null) {
+      Fluttertoast.showToast(
+          msg: "No image available",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0);
+      return;
+    }
+    File imageFile = File(_image!.path);
+    print(imageFile);
+    String base64Image = base64Encode(imageFile.readAsBytesSync());
+    // print(base64Image);
     http.post(
         Uri.parse("${MyConfig().SERVER}/mynelayan/php/update_profile.php"),
         body: {
-          "userid": widget.user.id,
-          "image": base64Image,
+          "userid": widget.user.id.toString(),
+          "image": base64Image.toString(),
         }).then((response) {
       var jsondata = jsonDecode(response.body);
+      print(jsondata);
       if (response.statusCode == 200 && jsondata['status'] == 'success') {
         Fluttertoast.showToast(
             msg: "Success",
